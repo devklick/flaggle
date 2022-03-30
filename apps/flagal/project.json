@@ -1,0 +1,71 @@
+{
+  "root": "apps/flagal",
+  "sourceRoot": "apps/flagal/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/flagal",
+        "index": "apps/flagal/src/index.html",
+        "baseHref": "/",
+        "main": "apps/flagal/src/main.tsx",
+        "polyfills": "apps/flagal/src/polyfills.ts",
+        "tsConfig": "apps/flagal/tsconfig.app.json",
+        "assets": ["apps/flagal/src/favicon.ico", "apps/flagal/src/assets"],
+        "styles": ["apps/flagal/src/styles.scss"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/flagal/src/environments/environment.ts",
+              "with": "apps/flagal/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "flagal:build",
+        "hmr": true,
+        "proxyConfig": "apps/flagal/proxy.conf.json"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "flagal:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/flagal/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/flagal"],
+      "options": {
+        "jestConfig": "apps/flagal/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,28 @@
+{
+  "root": "apps/flagal-e2e",
+  "sourceRoot": "apps/flagal-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/flagal-e2e/cypress.json",
+        "devServerTarget": "flagal:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "flagal:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/flagal-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["flagal"]
+}
