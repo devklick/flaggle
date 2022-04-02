@@ -1,5 +1,5 @@
 {
-  "name": "flagal",
+  "name": "flaggle",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
@@ -8,12 +8,23 @@
     "test": "nx test"
   },
   "private": true,
+  "prisma": {
+    "schema": "libs/flaggle-db/src/lib/schema.prisma",
+    "seed": "npx nx seed flaggle-db"
+  },
   "dependencies": {
+    "@jimp/plugin-crop": "^0.16.1",
+    "@prisma/client": "^3.11.1",
+    "axios": "^0.26.1",
     "core-js": "^3.6.5",
     "express": "4.17.2",
+    "install": "^0.13.0",
+    "jimp": "^0.16.1",
+    "npm": "^8.5.5",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "regenerator-runtime": "0.13.7",
+    "status-code-enum": "^1.0.0",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
@@ -48,6 +59,7 @@
     "jest": "27.2.3",
     "nx": "13.9.5",
     "prettier": "^2.5.1",
+    "prisma": "^3.11.1",
     "react-test-renderer": "17.0.2",
     "ts-jest": "27.0.5",
     "typescript": "~4.5.2"

@@ -1,0 +1,26 @@
+datasource db {
+  url      = env("DATABASE_URL")
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model country {
+  id                Int          @id @default(autoincrement())
+  external_ref      String       @unique() @default(uuid()) @db.Uuid()
+  flag_download_url String       @db.VarChar(256)
+  common_name       String       @unique() @db.VarChar(60)
+  offcial_name      String       @db.VarChar(120)
+  flag_chunks       flag_chunk[]
+}
+
+model flag_chunk {
+  id           Int     @id @default(autoincrement())
+  external_ref String  @unique() @default(uuid()) @db.Uuid()
+  x            Int     @db.Integer()
+  y            Int     @db.Integer()
+  country_id   Int
+  country      country @relation(fields: [country_id], references: [id])
+}

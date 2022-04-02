@@ -15,7 +15,14 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@flagal/api-interfaces": ["libs/api-interfaces/src/index.ts"]
+      "@flaggle/flaggle-api-schemas": [
+        "libs/flaggle-api-schemas/src/index.ts"
+      ],
+      "@flaggle/flaggle-db": ["libs/flaggle-db/src/index.ts"],
+      "@flaggle/image-service": ["libs/image-service/src/index.ts"],
+      "@flaggle/restcountries-service": [
+        "libs/restcountries-service/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

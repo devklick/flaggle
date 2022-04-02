@@ -1,9 +1,11 @@
 {
   "version": 2,
   "projects": {
-    "api": "apps/api",
-    "api-interfaces": "libs/api-interfaces",
-    "flagal": "apps/flagal",
-    "flagal-e2e": "apps/flagal-e2e"
+    "flaggle-api": "apps/flaggle-api",
+    "flaggle-api-schemas": "libs/flaggle-api-schemas",
+    "flaggle-db": "libs/flaggle-db",
+    "flaggle-ui": "apps/flaggle-ui",
+    "image-service": "libs/image-service",
+    "restcountries-service": "libs/restcountries-service"
   }
 }

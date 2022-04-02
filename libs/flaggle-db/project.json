@@ -1,0 +1,40 @@
+{
+  "root": "libs/flaggle-db",
+  "sourceRoot": "libs/flaggle-db/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/flaggle-db/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/flaggle-db"],
+      "options": {
+        "jestConfig": "libs/flaggle-db/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/flaggle-db",
+        "tsConfig": "libs/flaggle-db/tsconfig.lib.json",
+        "main": "libs/flaggle-db/src/lib/seed/index.ts",
+        "watch": false
+      }
+    },
+    "seed": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "flaggle-db:build",
+        "watch": false
+      }
+    }
+  },
+  "tags": []
+}

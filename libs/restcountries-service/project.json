@@ -1,0 +1,23 @@
+{
+  "root": "libs/restcountries-service",
+  "sourceRoot": "libs/restcountries-service/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/restcountries-service/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/restcountries-service"],
+      "options": {
+        "jestConfig": "libs/restcountries-service/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

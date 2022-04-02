@@ -1,5 +1,5 @@
 {
-  "npmScope": "flagal",
+  "npmScope": "flaggle",
   "affected": {
     "defaultBase": "main"
   },
@@ -45,5 +45,5 @@
       }
     }
   },
-  "defaultProject": "flagal"
+  "defaultProject": "flaggle"
 }
