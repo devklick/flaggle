@@ -36,8 +36,8 @@ const seed = async () => {
 
     await imageService.saveImageToDisk(
       flagImage.buffer,
-      'flags',
-      countryEntity.external_ref
+      countryEntity.external_ref,
+      'flags'
     );
 
     const splitFlag = await imageService.splitImageIntoChunks(
@@ -55,8 +55,9 @@ const seed = async () => {
     for (const chunk of splitFlag.chunks) {
       await imageService.saveImageToDisk(
         chunk.buffer,
-        splitFlag.imageRef,
-        chunk.chunkRef
+        chunk.chunkRef,
+        'flag-chunks',
+        splitFlag.imageRef
       );
       flagChunkEntities.push({
         external_ref: chunk.chunkRef,

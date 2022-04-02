@@ -5,7 +5,7 @@ import StatusCode from 'status-code-enum';
 import * as Jimp from 'jimp';
 import { randomUUID } from 'crypto';
 import { join as joinPath } from 'path';
-import { stat, writeFile } from 'fs/promises';
+import { mkdir, stat, writeFile } from 'fs/promises';
 
 export interface ImageMetadata {
   buffer: Buffer;
@@ -117,12 +117,18 @@ const splitImageIntoChunks = async (
 
 const saveImageToDisk = async (
   image: Buffer,
-  folderName: string,
-  fileName: string
+  fileName: string,
+  ...directoryParts: string[]
 ): Promise<void> => {
-  const imagePath = joinPath(config.imageBasePath, folderName, fileName);
+  const pathWithoutFilename = joinPath(
+    config.imageBasePath,
+    joinPath(...directoryParts)
+  );
+  const imagePath = joinPath(pathWithoutFilename, fileName);
+
   console.info(`Saving to ${imagePath}`);
-  await writeFile(imagePath, image, { mode: Mode.});
+  await mkdir(pathWithoutFilename, { recursive: true });
+  await writeFile(imagePath, image);
 };
 
 const imageExistsOnDisk = async (
