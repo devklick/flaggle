@@ -2,75 +2,75 @@ import { client } from '../client';
 import restcountriesService from '@flaggle/restcountries-service';
 import imageService from '@flaggle/image-service';
 import { randomUUID } from 'crypto';
-import { flag_chunk } from '@prisma/client';
+import { FlagChunk } from '@prisma/client';
 
 const seed = async () => {
-  console.log('Getting countries');
-  const countries = await restcountriesService.getAllContries();
-  console.info(`Found ${countries.length} countries`);
+	console.log('Getting countries');
+	const countries = await restcountriesService.getAllContries();
+	console.info(`Found ${countries.length} countries`);
 
-  for (const country of countries) {
-    const countryEntity = await client.country.upsert({
-      create: {
-        common_name: country.name.common,
-        offcial_name: country.name.official,
-        external_ref: randomUUID(),
-        flag_download_url: country.flags.png,
-      },
-      update: {
-        offcial_name: country.name.official,
-      },
-      where: {
-        common_name: country.name.common,
-      },
-      select: {
-        id: true,
-        external_ref: true,
-        flag_chunks: true,
-      },
-    });
+	for (const country of countries) {
+		const countryEntity = await client.country.upsert({
+			create: {
+				CommonName: country.name.common,
+				OffcialName: country.name.official,
+				ExternalRef: randomUUID(),
+				FlagDownloadUrl: country.flags.png,
+			},
+			update: {
+				OffcialName: country.name.official,
+			},
+			where: {
+				CommonName: country.name.common,
+			},
+			select: {
+				Id: true,
+				ExternalRef: true,
+				FlagChunks: true,
+			},
+		});
 
-    const flagImage = await imageService.downloadImageFromUrl(
-      country.flags.png
-    );
+		const flagImage = await imageService.downloadImageFromUrl(
+			country.flags.png
+		);
 
-    await imageService.saveImageToDisk(
-      flagImage.buffer,
-      countryEntity.external_ref,
-      'flags'
-    );
+		await imageService.saveImageToDisk(
+			flagImage.buffer,
+			countryEntity.ExternalRef,
+			'flags'
+		);
 
-    const splitFlag = await imageService.splitImageIntoChunks(
-      flagImage.buffer,
-      countryEntity.external_ref,
-      4,
-      4
-    );
+		const splitFlag = await imageService.splitImageIntoChunks(
+			flagImage.buffer,
+			countryEntity.ExternalRef,
+			4,
+			4
+		);
 
-    const flagChunkEntities: Pick<
-      flag_chunk,
-      'x' | 'y' | 'external_ref' | 'country_id'
-    >[] = [];
+		const flagChunkEntities: Pick<
+			FlagChunk,
+			'X' | 'Y' | 'ExternalRef' | 'CountryId'
+		>[] = [];
 
-    for (const chunk of splitFlag.chunks) {
-      await imageService.saveImageToDisk(
-        chunk.buffer,
-        chunk.chunkRef,
-        'flag-chunks',
-        splitFlag.imageRef
-      );
-      flagChunkEntities.push({
-        external_ref: chunk.chunkRef,
-        x: chunk.chunkPosition.x,
-        y: chunk.chunkPosition.y,
-        country_id: countryEntity.id,
-      });
-    }
+		for (const chunk of splitFlag.chunks) {
+			await imageService.saveImageToDisk(
+				chunk.buffer,
+				chunk.chunkRef,
+				'flag-chunks',
+				splitFlag.imageRef
+			);
+			flagChunkEntities.push({
+				ExternalRef: chunk.chunkRef,
+				X: chunk.chunkPosition.x,
+				Y: chunk.chunkPosition.y,
+				CountryId: countryEntity.Id,
+			});
+		}
 
-    await client.flag_chunk.createMany({
-      data: flagChunkEntities,
-    });
-  }
+		await client.flagChunk.createMany({
+			data: flagChunkEntities,
+		});
+	}
 };
 
 seed();

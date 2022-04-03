@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "files": [],
+  "files": [ "@types/express/index.d.ts" ],
   "include": [],
   "references": [
     {

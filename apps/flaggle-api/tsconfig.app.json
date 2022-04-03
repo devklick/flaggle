@@ -5,6 +5,7 @@
     "module": "commonjs",
     "types": ["node", "express"]
   },
+  "esModuleInterop": true,
   "exclude": ["**/*.spec.ts", "**/*.test.ts"],
   "include": ["**/*.ts"]
 }

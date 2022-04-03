@@ -19,7 +19,7 @@
 			}
 		},
 		"build": {
-			"executor": "@nrwl/node:webpack",
+			"executor": "@nrwl/node:build",
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/libs/flaggle-db",
@@ -29,7 +29,7 @@
 			}
 		},
 		"seed": {
-			"executor": "@nrwl/node:node",
+			"executor": "@nrwl/node:execute",
 			"options": {
 				"buildTarget": "flaggle-db:build",
 				"watch": false
