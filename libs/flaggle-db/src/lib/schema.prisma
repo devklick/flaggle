@@ -8,19 +8,66 @@ generator client {
 }
 
 model country {
-  id                Int          @id @default(autoincrement())
-  external_ref      String       @unique() @default(uuid()) @db.Uuid()
+  // The primary key that identifies the country
+  id Int @id @default(autoincrement())
+
+  // The identifier for the country that can be shared with external resources.
+  // This also doubles up as the pointer to the flag image.
+  external_ref String @unique() @default(uuid()) @db.Uuid()
+
+  created_on DateTime @default(now())
+  updated_on DateTime @updatedAt
+
+  // The URL that the flag image was originally downloaded from.
   flag_download_url String       @db.VarChar(256)
   common_name       String       @unique() @db.VarChar(60)
   offcial_name      String       @db.VarChar(120)
   flag_chunks       flag_chunk[]
+  games             game[]
+  answer            answer[]
 }
 
 model flag_chunk {
-  id           Int     @id @default(autoincrement())
-  external_ref String  @unique() @default(uuid()) @db.Uuid()
-  x            Int     @db.Integer()
-  y            Int     @db.Integer()
+  id           Int      @id @default(autoincrement())
+  external_ref String   @unique() @default(uuid()) @db.Uuid()
+  created_on   DateTime @default(now())
+  updated_on   DateTime @updatedAt
+  x            Int      @db.Integer()
+  y            Int      @db.Integer()
   country_id   Int
-  country      country @relation(fields: [country_id], references: [id])
+  country      country  @relation(fields: [country_id], references: [id])
+}
+
+model player {
+  id           Int      @id @default(autoincrement())
+  external_ref String   @unique() @default(uuid()) @db.Uuid()
+  created_on   DateTime @default(now())
+  updated_on   DateTime @updatedAt
+  games        game[]
+  answers      answer[]
+}
+
+model game {
+  id           Int      @id @default(autoincrement())
+  external_ref String   @unique() @default(uuid()) @db.Uuid()
+  created_on   DateTime @default(now())
+  updated_on   DateTime @updatedAt
+  country_id   Int
+  player_id    Int
+  player       player   @relation(fields: [player_id], references: [id])
+  country      country  @relation(fields: [country_id], references: [id])
+  answers      answer[]
+}
+
+model answer {
+  id           Int      @id @default(autoincrement())
+  external_ref String   @unique() @default(uuid()) @db.Uuid()
+  created_on   DateTime @default(now())
+  updated_on   DateTime @updatedAt
+  game_id      Int
+  player_id    Int
+  country_id   Int
+  game         game     @relation(fields: [game_id], references: [id])
+  player       player   @relation(fields: [player_id], references: [id])
+  country      country  @relation(fields: [country_id], references: [id])
 }

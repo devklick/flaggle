@@ -1,29 +1,32 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@flaggle/flaggle-api-schemas": [
-        "libs/flaggle-api-schemas/src/index.ts"
-      ],
-      "@flaggle/flaggle-db": ["libs/flaggle-db/src/index.ts"],
-      "@flaggle/image-service": ["libs/image-service/src/index.ts"],
-      "@flaggle/restcountries-service": [
-        "libs/restcountries-service/src/index.ts"
-      ]
-    }
-  },
-  "exclude": ["node_modules", "tmp"]
+	"compileOnSave": false,
+	"compilerOptions": {
+		"rootDir": ".",
+		"sourceMap": true,
+		"declaration": false,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"target": "es2015",
+		"module": "esnext",
+		"lib": ["es2017", "dom"],
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"baseUrl": ".",
+		"paths": {
+			"@flaggle/flaggle-api-schemas": [
+				"libs/flaggle-api-schemas/src/index.ts"
+			],
+			"@flaggle/flaggle-db": ["libs/flaggle-db/src/index.ts"],
+			"@flaggle/flaggle-game-service": [
+				"libs/flaggle-game-service/src/index.ts"
+			],
+			"@flaggle/image-service": ["libs/image-service/src/index.ts"],
+			"@flaggle/restcountries-service": [
+				"libs/restcountries-service/src/index.ts"
+			]
+		}
+	},
+	"exclude": ["node_modules", "tmp"]
 }

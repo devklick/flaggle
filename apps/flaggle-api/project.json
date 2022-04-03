@@ -1,52 +1,52 @@
 {
-  "root": "apps/flaggle-api",
-  "sourceRoot": "apps/flaggle-api/src",
-  "projectType": "application",
-  "targets": {
-    "build": {
-      "executor": "@nrwl/node:webpack",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/apps/flaggle-api",
-        "main": "apps/flaggle-api/src/main.ts",
-        "tsConfig": "apps/flaggle-api/tsconfig.app.json",
-        "assets": ["apps/flaggle-api/src/assets"]
-      },
-      "configurations": {
-        "production": {
-          "optimization": true,
-          "extractLicenses": true,
-          "inspect": false,
-          "fileReplacements": [
-            {
-              "replace": "apps/flaggle-api/src/environments/environment.ts",
-              "with": "apps/flaggle-api/src/environments/environment.prod.ts"
-            }
-          ]
-        }
-      }
-    },
-    "serve": {
-      "executor": "@nrwl/node:node",
-      "options": {
-        "buildTarget": "flaggle-api:build"
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/flaggle-api/**/*.ts"]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/flaggle-api"],
-      "options": {
-        "jestConfig": "apps/flaggle-api/jest.config.js",
-        "passWithNoTests": true
-      }
-    }
-  },
-  "tags": []
+	"root": "apps/flaggle-api",
+	"sourceRoot": "apps/flaggle-api/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/node:webpack",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/apps/flaggle-api",
+				"main": "apps/flaggle-api/src/main.ts",
+				"tsConfig": "apps/flaggle-api/tsconfig.app.json",
+				"assets": ["apps/flaggle-api/src/assets"]
+			},
+			"configurations": {
+				"production": {
+					"optimization": true,
+					"extractLicenses": true,
+					"inspect": false,
+					"fileReplacements": [
+						{
+							"replace": "apps/flaggle-api/src/environments/environment.ts",
+							"with": "apps/flaggle-api/src/environments/environment.prod.ts"
+						}
+					]
+				}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/node:node",
+			"options": {
+				"buildTarget": "flaggle-api:build"
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["apps/flaggle-api/**/*.ts"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/apps/flaggle-api"],
+			"options": {
+				"jestConfig": "apps/flaggle-api/jest.config.js",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
 }

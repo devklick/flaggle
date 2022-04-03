@@ -1,16 +1,18 @@
 import * as express from 'express';
-import { Message } from '@flaggle/flaggle-api-schemas';
-
-const app = express();
-
-const greeting: Message = { message: 'Welcome to flaggle-api!' };
-
-app.get('/flaggle-api', (req, res) => {
-  res.send(greeting);
-});
+import gameRouter from './routers/game-router';
 
 const port = process.env.port || 3333;
+const app = express();
+
+app.use('/game', gameRouter);
+
+app.get('/status', (req, res) => {
+	res.send(
+		`Up at ${new Date().toLocaleTimeString()} on ${new Date().toLocaleDateString()}`
+	);
+});
+
 const server = app.listen(port, () => {
-  console.log('Listening at http://localhost:' + port + '/flaggle-api');
+	console.log(`Listening at http://localhost:${port}`);
 });
 server.on('error', console.error);

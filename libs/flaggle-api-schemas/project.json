@@ -1,15 +1,15 @@
 {
-  "root": "libs/flaggle-api-schemas",
-  "sourceRoot": "libs/flaggle-api-schemas/src",
-  "projectType": "library",
-  "targets": {
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/flaggle-api-schemas/**/*.ts"]
-      }
-    }
-  },
-  "tags": []
+	"root": "libs/flaggle-api-schemas",
+	"sourceRoot": "libs/flaggle-api-schemas/src",
+	"projectType": "library",
+	"targets": {
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["libs/flaggle-api-schemas/**/*.ts"]
+			}
+		}
+	},
+	"tags": []
 }

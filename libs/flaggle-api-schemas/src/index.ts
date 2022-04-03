@@ -1,1 +1,1 @@
-export * from './lib/flaggle-api-schemas';
+export * from './lib/game-schema';

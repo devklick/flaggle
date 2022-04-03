@@ -1,1 +1,1 @@
-export * from './lib/flaggle-db';
+export * from './lib/client';

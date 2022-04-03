@@ -1,11 +1,12 @@
 {
-  "version": 2,
-  "projects": {
-    "flaggle-api": "apps/flaggle-api",
-    "flaggle-api-schemas": "libs/flaggle-api-schemas",
-    "flaggle-db": "libs/flaggle-db",
-    "flaggle-ui": "apps/flaggle-ui",
-    "image-service": "libs/image-service",
-    "restcountries-service": "libs/restcountries-service"
-  }
+	"version": 2,
+	"projects": {
+		"flaggle-api": "apps/flaggle-api",
+		"flaggle-api-schemas": "libs/flaggle-api-schemas",
+		"flaggle-db": "libs/flaggle-db",
+		"flaggle-game-service": "libs/flaggle-game-service",
+		"flaggle-ui": "apps/flaggle-ui",
+		"image-service": "libs/image-service",
+		"restcountries-service": "libs/restcountries-service"
+	}
 }

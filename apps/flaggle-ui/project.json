@@ -1,74 +1,74 @@
 {
-  "root": "apps/flaggle-ui",
-  "sourceRoot": "apps/flaggle/src",
-  "projectType": "application",
-  "targets": {
-    "build": {
-      "executor": "@nrwl/web:webpack",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "compiler": "babel",
-        "outputPath": "dist/apps/flaggle-ui",
-        "index": "apps/flaggle-ui/src/index.html",
-        "baseHref": "/",
-        "main": "apps/flaggle-ui/src/main.tsx",
-        "polyfills": "apps/flaggle-ui/src/polyfills.ts",
-        "tsConfig": "apps/flaggle-ui/tsconfig.app.json",
-        "assets": [
-          "apps/flaggle-ui/src/favicon.ico",
-          "apps/flaggle-ui/src/assets"
-        ],
-        "styles": ["apps/flaggle-ui/src/styles.scss"],
-        "scripts": [],
-        "webpackConfig": "@nrwl/react/plugins/webpack"
-      },
-      "configurations": {
-        "production": {
-          "fileReplacements": [
-            {
-              "replace": "apps/flaggle-ui/src/environments/environment.ts",
-              "with": "apps/flaggle-ui/src/environments/environment.prod.ts"
-            }
-          ],
-          "optimization": true,
-          "outputHashing": "all",
-          "sourceMap": false,
-          "namedChunks": false,
-          "extractLicenses": true,
-          "vendorChunk": false
-        }
-      }
-    },
-    "serve": {
-      "executor": "@nrwl/web:dev-server",
-      "options": {
-        "buildTarget": "flaggle-ui:build",
-        "hmr": true,
-        "proxyConfig": "apps/flaggle/proxy.conf.json"
-      },
-      "configurations": {
-        "production": {
-          "buildTarget": "flaggle-ui:build:production",
-          "hmr": false
-        }
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/flaggle-ui/**/*.{ts,tsx,js,jsx}"]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/flaggle-ui"],
-      "options": {
-        "jestConfig": "apps/flaggle-ui/jest.config.js",
-        "passWithNoTests": true
-      }
-    }
-  },
-  "tags": []
+	"root": "apps/flaggle-ui",
+	"sourceRoot": "apps/flaggle/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/web:webpack",
+			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
+			"options": {
+				"compiler": "babel",
+				"outputPath": "dist/apps/flaggle-ui",
+				"index": "apps/flaggle-ui/src/index.html",
+				"baseHref": "/",
+				"main": "apps/flaggle-ui/src/main.tsx",
+				"polyfills": "apps/flaggle-ui/src/polyfills.ts",
+				"tsConfig": "apps/flaggle-ui/tsconfig.app.json",
+				"assets": [
+					"apps/flaggle-ui/src/favicon.ico",
+					"apps/flaggle-ui/src/assets"
+				],
+				"styles": ["apps/flaggle-ui/src/styles.scss"],
+				"scripts": [],
+				"webpackConfig": "@nrwl/react/plugins/webpack"
+			},
+			"configurations": {
+				"production": {
+					"fileReplacements": [
+						{
+							"replace": "apps/flaggle-ui/src/environments/environment.ts",
+							"with": "apps/flaggle-ui/src/environments/environment.prod.ts"
+						}
+					],
+					"optimization": true,
+					"outputHashing": "all",
+					"sourceMap": false,
+					"namedChunks": false,
+					"extractLicenses": true,
+					"vendorChunk": false
+				}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/web:dev-server",
+			"options": {
+				"buildTarget": "flaggle-ui:build",
+				"hmr": true,
+				"proxyConfig": "apps/flaggle/proxy.conf.json"
+			},
+			"configurations": {
+				"production": {
+					"buildTarget": "flaggle-ui:build:production",
+					"hmr": false
+				}
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["apps/flaggle-ui/**/*.{ts,tsx,js,jsx}"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/apps/flaggle-ui"],
+			"options": {
+				"jestConfig": "apps/flaggle-ui/jest.config.js",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
 }
