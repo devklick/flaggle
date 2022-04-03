@@ -1,27 +1,28 @@
 import { z } from 'zod';
 
-export interface Message {
-	message: string;
-}
+const flagChunkSchema = z.object({
+	/**
+	 * Whether or not this chunk has been revealed to the player yet.
+	 */
+	revealed: z.oboolean(),
+	/**
+	 * The external ref is a pointer to a piece of a flag.
+	 * Ths pointer can be shared with the outside world.
+	 * It doubles up as the name of the image file.
+	 * If the chunk has not been revealed, this will be undefined.
+	 */
+	externalRef: z.string().optional(),
+	/**
+	 * The position is relative within the split flag.
+	 * The split flag is essentially a grid starting from 0,0
+	 */
+	position: z.object({
+		x: z.number().int().nonnegative(),
+		y: z.number().int().nonnegative(),
+	}),
+});
 
-const flagChunksSchema = z.array(
-	z.object({
-		/**
-		 * The external ref is a pointer to a piece of a flag.
-		 * Ths pointer can be shared with the outside world.
-		 * It doubles up as the name of the image file.
-		 */
-		externalRef: z.string(),
-		/**
-		 * The position is relative within the split flag.
-		 * The split flag is essentially a grid starting from 0,0
-		 */
-		position: z.object({
-			x: z.number().int().nonnegative(),
-			y: z.number().int().nonnegative(),
-		}),
-	})
-);
+const flagChunksSchema = z.array(flagChunkSchema);
 
 export const createGameRequestSchema = z.object({
 	/**
@@ -40,7 +41,7 @@ export const createGameResponseSchema = z.object({
 	 */
 	playerId: z.string(),
 	gameId: z.string(),
-	revealedChunks: flagChunksSchema,
+	flagChunks: flagChunksSchema,
 });
 
 export const updateGameRequestSchema = z.object({
@@ -59,54 +60,31 @@ export const updateGameRequestSchema = z.object({
 });
 
 export const updateGameResponseSchema = z.object({
+	/**
+	 * Whether or not the country in the corresponding request
+	 * was the correct guess.
+	 */
 	correct: z.boolean(),
+	/**
+	 * The cumulative guesses during the game.
+	 */
 	guesses: z.array(
 		z.object({
+			/**
+			 * The ID of the country guessed.
+			 */
 			countryId: z.string(),
+			/**
+			 * Whether or not this country was a correct guess
+			 */
 			correct: z.boolean(),
 		})
 	),
-	revealedChunks: flagChunksSchema,
+	flagChunks: flagChunksSchema,
 });
 
 export type CreateGameRequest = z.infer<typeof createGameRequestSchema>;
 export type CreateGameResponse = z.infer<typeof createGameResponseSchema>;
 export type UpdateGameRequest = z.infer<typeof updateGameRequestSchema>;
 export type UpdateGameResponse = z.infer<typeof updateGameResponseSchema>;
-
-/*
-CREATE - REQUEST
-	playerId: string
-
-CREATE - RESPONSE:
-	playerId: string
-	gameId: string
-	flagChunks: [
-		{
-			externalRef: string, 
-			position: { x: number. y: number},
-		}
-	],
-*/
-
-/*
-UPDATE - REQUEST:
-	gameId: string
-	playerId: string
-	countryId: string
-
-UPDATE - RESPONSE
-	result: boolean
-	guesses: [
-		{
-			countryId: string,`
-			correct: bool
-		}
-	],
-	flagChunks: [
-		{
-			chunkId: string, 
-			position: { x: number. y: number},
-		}
-	],
-*/
+export type FlagChunk = z.infer<typeof flagChunkSchema>;

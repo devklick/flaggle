@@ -1,6 +1,6 @@
 {
 	"root": "apps/flaggle-ui",
-	"sourceRoot": "apps/flaggle/src",
+	"sourceRoot": "apps/flaggle-ui/src",
 	"projectType": "application",
 	"targets": {
 		"build": {
@@ -45,7 +45,7 @@
 			"options": {
 				"buildTarget": "flaggle-ui:build",
 				"hmr": true,
-				"proxyConfig": "apps/flaggle/proxy.conf.json"
+				"proxyConfig": "apps/flaggle-ui/proxy.conf.json"
 			},
 			"configurations": {
 				"production": {

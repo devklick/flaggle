@@ -1,0 +1,23 @@
+{
+	"root": "libs/flaggle-api-service",
+	"sourceRoot": "libs/flaggle-api-service/src",
+	"projectType": "library",
+	"targets": {
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["libs/flaggle-api-service/**/*.ts"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/libs/flaggle-api-service"],
+			"options": {
+				"jestConfig": "libs/flaggle-api-service/jest.config.js",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
+}

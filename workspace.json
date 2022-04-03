@@ -3,6 +3,7 @@
 	"projects": {
 		"flaggle-api": "apps/flaggle-api",
 		"flaggle-api-schemas": "libs/flaggle-api-schemas",
+		"flaggle-api-service": "libs/flaggle-api-service",
 		"flaggle-db": "libs/flaggle-db",
 		"flaggle-game-service": "libs/flaggle-game-service",
 		"flaggle-ui": "apps/flaggle-ui",

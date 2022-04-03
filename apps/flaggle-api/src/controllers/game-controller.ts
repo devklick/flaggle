@@ -1,5 +1,4 @@
 import flaggleGameService from '@flaggle/flaggle-game-service';
-import { Request } from 'express';
 import { ActionMethod, respond } from './types';
 
 export const createGame: ActionMethod = async (req, res) => {

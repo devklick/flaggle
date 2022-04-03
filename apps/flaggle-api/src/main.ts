@@ -1,11 +1,12 @@
 import * as express from 'express';
 import countryRouter from './routers/country-router';
 import gameRouter from './routers/game-router';
+import * as cors from 'cors';
 
 const port = process.env.port || 3333;
 const app = express();
 
-//app.use(cors());
+app.use(cors());
 //app.use(logger('dev'));
 app.use(express.json());
 

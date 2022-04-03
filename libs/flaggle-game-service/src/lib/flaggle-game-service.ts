@@ -39,7 +39,7 @@ export const createGame = async (
 		},
 	});
 
-	const startingFlagChunk = await getNextFlagChunk(country.Id);
+	const startingFlagChunk = await getRandomItem(country.FlagChunks);
 
 	await client.revealedChunk.create({
 		data: {
@@ -60,15 +60,14 @@ export const createGame = async (
 	return {
 		playerId: player.ExternalRef,
 		gameId: game.ExternalRef,
-		revealedChunks: [
-			{
-				externalRef: startingFlagChunk.ExternalRef,
-				position: {
-					x: startingFlagChunk.X,
-					y: startingFlagChunk.Y,
-				},
+		flagChunks: country.FlagChunks.map((c) => ({
+			revealed: c.Id === startingFlagChunk.Id,
+			externalRef: `${country.ExternalRef}/${c.ExternalRef}`,
+			position: {
+				x: c.X,
+				y: c.Y,
 			},
-		],
+		})),
 	};
 };
 
@@ -167,11 +166,14 @@ export const updateGame = async (
 	}));
 
 	// Convert he chunks to objects expected by the API response
-	const revealedChunks = game.RevealedChunks.map((chunk) => ({
-		externalRef: chunk.FlagChunk.ExternalRef,
+	const flagChunks = game.Country.FlagChunks.map((chunk) => ({
+		externalRef: `${game.Country.ExternalRef}/${chunk.ExternalRef}`,
+		revealed: game.RevealedChunks.some(
+			(c) => c.FlagChunk.ExternalRef === chunk.ExternalRef
+		),
 		position: {
-			x: chunk.FlagChunk.X,
-			y: chunk.FlagChunk.Y,
+			x: chunk.X,
+			y: chunk.Y,
 		},
 	}));
 
@@ -186,7 +188,7 @@ export const updateGame = async (
 		const nextChunk = getRandomItem(remainingChunks);
 		await client.revealedChunk.create({
 			data: {
-				OrderId: revealedChunks.length + 1,
+				OrderId: flagChunks.length + 1,
 				FlagChunk: {
 					connect: {
 						ExternalRef: nextChunk.ExternalRef,
@@ -199,20 +201,15 @@ export const updateGame = async (
 				},
 			},
 		});
-
-		revealedChunks.push({
-			externalRef: nextChunk.ExternalRef,
-			position: {
-				x: nextChunk.X,
-				y: nextChunk.Y,
-			},
-		});
+		flagChunks.find((c) =>
+			c.externalRef.endsWith(nextChunk.ExternalRef)
+		).revealed = true;
 	}
 
 	return {
 		correct,
 		guesses,
-		revealedChunks,
+		flagChunks,
 	};
 };
 
@@ -222,6 +219,7 @@ const getNextCountry = async (playerId: number) => {
 			Id: true,
 			CommonName: true,
 			ExternalRef: true,
+			FlagChunks: true,
 		},
 		where: {
 			Games: {
