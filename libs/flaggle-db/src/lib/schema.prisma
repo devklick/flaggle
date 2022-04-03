@@ -17,7 +17,7 @@ model Country {
   OffcialName     String      @map("offcial_name") @db.VarChar(120)
   FlagChunks      FlagChunk[]
   Games           Game[]
-  Answer          Answer[]
+  Answers         Answer[]
 
   @@map("country")
 }

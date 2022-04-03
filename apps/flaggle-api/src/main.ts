@@ -1,4 +1,5 @@
 import * as express from 'express';
+import countryRouter from './routers/country-router';
 import gameRouter from './routers/game-router';
 
 const port = process.env.port || 3333;
@@ -9,6 +10,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/game', gameRouter);
+app.use('/country', countryRouter);
 
 app.get('/status', (req, res) => {
 	res.send(
