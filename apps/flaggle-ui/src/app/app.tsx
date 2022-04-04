@@ -35,7 +35,7 @@ export const App = () => {
 	useEffect(() => {
 		const getGame = async () => {
 			const game = await flaggleApiService.createGame({
-				playerId: undefined,
+				playerId: undefined, // TODO: Add in context that handles local storage of player ID
 			});
 			setGame(game);
 			setFlag(game.flag);
