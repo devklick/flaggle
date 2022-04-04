@@ -9,12 +9,19 @@ type SelectValue = {
 export interface CountrySelectorProps {
 	countries: Country[];
 	disabledCountryIds: string[];
+	selectedCountry: Country | null;
 	onSelectedCountryChanged: (selectedCountry: Country) => void;
 }
 const CountrySelector: React.FC<CountrySelectorProps> = (props) => {
 	return (
 		<div>
 			<Select
+				value={
+					props.selectedCountry && {
+						label: props.selectedCountry.name,
+						value: props.selectedCountry.countryId,
+					}
+				}
 				options={props.countries.map(
 					(c): SelectValue => ({ label: c.name, value: c.countryId })
 				)}

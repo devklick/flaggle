@@ -66,6 +66,7 @@ export const App = () => {
 		setFlag(result.flag);
 		setGuesses(result.guesses);
 		result.correct !== correct && setCorrect(result.correct);
+		setCurrentSelection(null);
 	};
 
 	return (
@@ -75,6 +76,7 @@ export const App = () => {
 				countries={countries}
 				disabledCountryIds={guesses.map((g) => g.countryId)}
 				onSelectedCountryChanged={setCurrentSelection}
+				selectedCountry={currentSelection}
 			/>
 			<button onClick={handleClick}>Submit</button>
 			{correct && <div>YOU GOT IT RIGHT!</div>}
