@@ -1,10 +1,13 @@
 import {
 	CreateGameRequest,
 	CreateGameResponse,
+	FlagChunk,
 	UpdateGameRequest,
 	UpdateGameResponse,
 } from '@flaggle/flaggle-api-schemas';
 import { client } from '@flaggle/flaggle-db';
+import { FileType as FileType_DB } from '@prisma/client';
+import { FileType as FileType_API } from '@flaggle/flaggle-api-schemas';
 import { randomUUID } from 'crypto';
 
 export const createGame = async (
@@ -39,7 +42,7 @@ export const createGame = async (
 		},
 	});
 
-	const startingFlagChunk = await getRandomItem(country.FlagChunks);
+	const startingFlagChunk = getRandomItem(country.Flag.Chunks);
 
 	await client.revealedChunk.create({
 		data: {
@@ -60,14 +63,24 @@ export const createGame = async (
 	return {
 		playerId: player.ExternalRef,
 		gameId: game.ExternalRef,
-		flagChunks: country.FlagChunks.map((c) => ({
-			revealed: c.Id === startingFlagChunk.Id,
-			externalRef: `${country.ExternalRef}/${c.ExternalRef}`,
-			position: {
-				x: c.X,
-				y: c.Y,
-			},
-		})),
+		flag: {
+			externalRef: country.Flag.ExternalRef,
+			fileType: mapFileTyle(country.Flag.FileType),
+			chunks: country.Flag.Chunks.map((chunk) => {
+				const revealed = chunk.Id === startingFlagChunk.Id;
+				return {
+					revealed,
+					fileType: revealed
+						? mapFileTyle(chunk.FileType)
+						: undefined,
+					externalRef: revealed ? chunk.ExternalRef : undefined,
+					position: {
+						x: chunk.X,
+						y: chunk.Y,
+					},
+				};
+			}),
+		},
 	};
 };
 
@@ -86,11 +99,18 @@ export const updateGame = async (
 				select: {
 					ExternalRef: true,
 					Id: true,
-					FlagChunks: {
+					Flag: {
 						select: {
 							ExternalRef: true,
-							X: true,
-							Y: true,
+							FileType: true,
+							Chunks: {
+								select: {
+									FileType: true,
+									ExternalRef: true,
+									X: true,
+									Y: true,
+								},
+							},
 						},
 					},
 				},
@@ -166,20 +186,24 @@ export const updateGame = async (
 	}));
 
 	// Convert he chunks to objects expected by the API response
-	const flagChunks = game.Country.FlagChunks.map((chunk) => ({
-		externalRef: `${game.Country.ExternalRef}/${chunk.ExternalRef}`,
-		revealed: game.RevealedChunks.some(
+	const flagChunks = game.Country.Flag.Chunks.map((chunk): FlagChunk => {
+		const revealed = game.RevealedChunks.some(
 			(c) => c.FlagChunk.ExternalRef === chunk.ExternalRef
-		),
-		position: {
-			x: chunk.X,
-			y: chunk.Y,
-		},
-	}));
+		);
+		return {
+			revealed,
+			fileType: mapFileTyle(game.Country.Flag.FileType),
+			externalRef: revealed ? chunk.ExternalRef : null,
+			position: {
+				x: chunk.X,
+				y: chunk.Y,
+			},
+		};
+	});
 
 	// If the answer was incorrect, we need to fetch another chunk to serve as the next clue
 	if (!correct) {
-		const remainingChunks = game.Country.FlagChunks.filter(
+		const remainingChunks = game.Country.Flag.Chunks.filter(
 			(chunk) =>
 				!game.RevealedChunks.some(
 					(r) => r.FlagChunk.ExternalRef === chunk.ExternalRef
@@ -201,16 +225,32 @@ export const updateGame = async (
 				},
 			},
 		});
-		flagChunks.find((c) =>
-			c.externalRef.endsWith(nextChunk.ExternalRef)
-		).revealed = true;
+		const next = flagChunks.find(
+			(c) => c.position.x === nextChunk.X && c.position.y == nextChunk.Y
+		);
+		next.revealed = true;
+		next.fileType = mapFileTyle(nextChunk.FileType);
+		next.externalRef = nextChunk.ExternalRef;
 	}
 
 	return {
 		correct,
 		guesses,
-		flagChunks,
+		flag: {
+			fileType: mapFileTyle(game.Country.Flag.FileType),
+			externalRef: game.Country.Flag.ExternalRef,
+			chunks: flagChunks,
+		},
 	};
+};
+
+const mapFileTyle = (fileType: FileType_DB): FileType_API => {
+	switch (fileType) {
+		case 'PNG':
+			return 'png';
+		default:
+			throw new Error('Unsupported file type');
+	}
 };
 
 const getNextCountry = async (playerId: number) => {
@@ -219,7 +259,13 @@ const getNextCountry = async (playerId: number) => {
 			Id: true,
 			CommonName: true,
 			ExternalRef: true,
-			FlagChunks: true,
+			Flag: {
+				select: {
+					Chunks: true,
+					ExternalRef: true,
+					FileType: true,
+				},
+			},
 		},
 		where: {
 			Games: {
@@ -230,20 +276,6 @@ const getNextCountry = async (playerId: number) => {
 		},
 	});
 	return getRandomItem(nextCountries);
-};
-
-const getNextFlagChunk = async (countryId: number) => {
-	const flagChunks = await client.flagChunk.findMany({
-		select: {
-			ExternalRef: true,
-			X: true,
-			Y: true,
-		},
-		where: {
-			CountryId: countryId,
-		},
-	});
-	return getRandomItem(flagChunks);
 };
 
 const getRandomItem = <T>(items: T[]): T =>

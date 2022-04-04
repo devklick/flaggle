@@ -8,18 +8,33 @@ generator client {
 }
 
 model Country {
-  Id              Int         @id @default(autoincrement()) @map("id")
-  ExternalRef     String      @unique() @default(uuid()) @map("external_ref") @db.Uuid()
-  CreatedOn       DateTime    @default(now()) @map("created_on")
-  UpdatedOn       DateTime    @updatedAt @map("updated_on")
-  FlagDownloadUrl String      @map("flag_download_url") @db.VarChar(256)
-  CommonName      String      @unique() @map("common_name") @db.VarChar(60)
-  OffcialName     String      @map("offcial_name") @db.VarChar(120)
-  FlagChunks      FlagChunk[]
-  Games           Game[]
-  Answers         Answer[]
+  Id          Int      @id @default(autoincrement()) @map("id")
+  ExternalRef String   @unique() @default(uuid()) @map("external_ref") @db.Uuid()
+  CreatedOn   DateTime @default(now()) @map("created_on")
+  UpdatedOn   DateTime @updatedAt @map("updated_on")
+  CommonName  String   @unique() @map("common_name") @db.VarChar(60)
+  OffcialName String   @map("offcial_name") @db.VarChar(120)
+  FlagId      Int      @unique @map("flag_id")
 
+  Flag    Flag     @relation(fields: [FlagId], references: [Id])
+  Games   Game[]
+  Answers Answer[]
   @@map("country")
+}
+
+model Flag {
+  Id                  Int      @id @default(autoincrement()) @map("id")
+  ExternalRef         String   @unique() @default(uuid()) @map("external_ref") @db.Uuid()
+  CreatedOn           DateTime @default(now()) @map("created_on")
+  UpdatedOn           DateTime @updatedAt @map("updated_on")
+  ExternalDownloadUrl String   @map("external_download_url") @db.VarChar(256)
+  FileType            FileType @map("file_type")
+  CountryId           Int?     @unique @map("country_id")
+
+  Country Country?
+  Chunks  FlagChunk[]
+
+  @@map("flag")
 }
 
 model FlagChunk {
@@ -29,8 +44,9 @@ model FlagChunk {
   UpdatedOn      DateTime        @updatedAt @map("updated_on")
   X              Int             @map("x") @db.Integer()
   Y              Int             @map("y") @db.Integer()
-  CountryId      Int             @map("country_id")
-  Country        Country         @relation(fields: [CountryId], references: [Id])
+  FileType       FileType        @map("file_type")
+  FlagId         Int             @map("flag_id")
+  Flag           Flag            @relation(fields: [FlagId], references: [Id])
   RevealedChunks RevealedChunk[]
 
   @@map("flag_chunk")
@@ -96,4 +112,10 @@ model Answer {
   RevealedChunk   RevealedChunk @relation(fields: [RevealedChunkId], references: [Id])
 
   @@map("answer")
+}
+
+enum FileType {
+  PNG  @map("png")
+
+  @@map("file_type")
 }

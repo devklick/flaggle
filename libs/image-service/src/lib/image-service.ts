@@ -4,12 +4,13 @@ import axios from 'axios';
 import StatusCode from 'status-code-enum';
 import * as Jimp from 'jimp';
 import { randomUUID } from 'crypto';
-import { join as joinPath } from 'path';
+import { join as joinPath, extname } from 'path';
 import { mkdir, stat, writeFile } from 'fs/promises';
 
 export interface ImageMetadata {
 	buffer: Buffer;
 	imageRef: string;
+	type: string;
 }
 const downloadImageFromUrl = async (url: string): Promise<ImageMetadata> => {
 	const result = await axios.get<Buffer>(url, {
@@ -21,6 +22,7 @@ const downloadImageFromUrl = async (url: string): Promise<ImageMetadata> => {
 	return {
 		buffer: result.data,
 		imageRef: randomUUID(),
+		type: extname(url),
 	};
 };
 
@@ -118,14 +120,15 @@ const splitImageIntoChunks = async (
 const saveImageToDisk = async (
 	image: Buffer,
 	fileName: string,
+	fileExtension: string,
 	...directoryParts: string[]
 ): Promise<void> => {
 	const pathWithoutFilename = joinPath(
 		config.imageBasePath,
 		joinPath(...directoryParts)
 	);
-	image;
-	const imagePath = joinPath(pathWithoutFilename, fileName + '.png'); // TODO: Work out file type dynamically
+	const fileNameWithExtension = `${fileName}${fileExtension}`;
+	const imagePath = joinPath(pathWithoutFilename, fileNameWithExtension);
 
 	console.info(`Saving to ${imagePath}`);
 	await mkdir(pathWithoutFilename, { recursive: true });

@@ -1,7 +1,6 @@
 import { client } from '../client';
 import restcountriesService from '@flaggle/restcountries-service';
 import imageService from '@flaggle/image-service';
-import { randomUUID } from 'crypto';
 import { FlagChunk } from '@prisma/client';
 
 const seed = async () => {
@@ -10,12 +9,17 @@ const seed = async () => {
 	console.info(`Found ${countries.length} countries`);
 
 	for (const country of countries) {
+		console.info(`Processing country ${country.name.common}`);
 		const countryEntity = await client.country.upsert({
 			create: {
 				CommonName: country.name.common,
 				OffcialName: country.name.official,
-				ExternalRef: randomUUID(),
-				FlagDownloadUrl: country.flags.png,
+				Flag: {
+					create: {
+						ExternalDownloadUrl: country.flags.png,
+						FileType: 'PNG',
+					},
+				},
 			},
 			update: {
 				OffcialName: country.name.official,
@@ -26,7 +30,12 @@ const seed = async () => {
 			select: {
 				Id: true,
 				ExternalRef: true,
-				FlagChunks: true,
+				Flag: {
+					select: {
+						Id: true,
+						ExternalRef: true,
+					},
+				},
 			},
 		});
 
@@ -37,33 +46,36 @@ const seed = async () => {
 		await imageService.saveImageToDisk(
 			flagImage.buffer,
 			countryEntity.ExternalRef,
+			flagImage.type,
 			'flags'
 		);
 
 		const splitFlag = await imageService.splitImageIntoChunks(
 			flagImage.buffer,
-			countryEntity.ExternalRef,
+			countryEntity.Flag.ExternalRef,
 			4,
 			4
 		);
 
 		const flagChunkEntities: Pick<
 			FlagChunk,
-			'X' | 'Y' | 'ExternalRef' | 'CountryId'
+			'X' | 'Y' | 'ExternalRef' | 'FlagId' | 'FileType'
 		>[] = [];
 
 		for (const chunk of splitFlag.chunks) {
 			await imageService.saveImageToDisk(
 				chunk.buffer,
 				chunk.chunkRef,
+				flagImage.type,
 				'flag-chunks',
-				splitFlag.imageRef
+				countryEntity.Flag.ExternalRef
 			);
 			flagChunkEntities.push({
 				ExternalRef: chunk.chunkRef,
 				X: chunk.chunkPosition.x,
 				Y: chunk.chunkPosition.y,
-				CountryId: countryEntity.Id,
+				FlagId: countryEntity.Flag.Id,
+				FileType: 'PNG',
 			});
 		}
 
@@ -71,6 +83,8 @@ const seed = async () => {
 			data: flagChunkEntities,
 		});
 	}
+
+	console.info('Done!');
 };
 
 seed();

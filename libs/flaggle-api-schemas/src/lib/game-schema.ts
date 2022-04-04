@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
+const fileTypeSchema = z.enum(['png']);
+
 const flagChunkSchema = z.object({
 	/**
 	 * Whether or not this chunk has been revealed to the player yet.
 	 */
 	revealed: z.oboolean(),
+
 	/**
 	 * The external ref is a pointer to a piece of a flag.
 	 * Ths pointer can be shared with the outside world.
@@ -12,6 +15,8 @@ const flagChunkSchema = z.object({
 	 * If the chunk has not been revealed, this will be undefined.
 	 */
 	externalRef: z.string().optional(),
+	fileType: fileTypeSchema,
+
 	/**
 	 * The position is relative within the split flag.
 	 * The split flag is essentially a grid starting from 0,0
@@ -23,6 +28,12 @@ const flagChunkSchema = z.object({
 });
 
 const flagChunksSchema = z.array(flagChunkSchema);
+
+const flagSchema = z.object({
+	externalRef: z.string(),
+	fileType: fileTypeSchema,
+	chunks: flagChunksSchema,
+});
 
 export const createGameRequestSchema = z.object({
 	/**
@@ -41,7 +52,7 @@ export const createGameResponseSchema = z.object({
 	 */
 	playerId: z.string(),
 	gameId: z.string(),
-	flagChunks: flagChunksSchema,
+	flag: flagSchema,
 });
 
 export const updateGameRequestSchema = z.object({
@@ -80,11 +91,13 @@ export const updateGameResponseSchema = z.object({
 			correct: z.boolean(),
 		})
 	),
-	flagChunks: flagChunksSchema,
+	flag: flagSchema,
 });
 
 export type CreateGameRequest = z.infer<typeof createGameRequestSchema>;
 export type CreateGameResponse = z.infer<typeof createGameResponseSchema>;
 export type UpdateGameRequest = z.infer<typeof updateGameRequestSchema>;
 export type UpdateGameResponse = z.infer<typeof updateGameResponseSchema>;
+export type Flag = z.infer<typeof flagSchema>;
 export type FlagChunk = z.infer<typeof flagChunkSchema>;
+export type FileType = z.infer<typeof fileTypeSchema>;

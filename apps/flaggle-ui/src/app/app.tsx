@@ -1,7 +1,7 @@
 import {
 	Country,
 	CreateGameResponse,
-	FlagChunk,
+	Flag,
 } from '@flaggle/flaggle-api-schemas';
 import flaggleApiService from '@flaggle/flaggle-api-service';
 import React, { useEffect, useRef, useState } from 'react';
@@ -27,7 +27,7 @@ export const App = () => {
 
 	const [game, setGame] = useState<GameType | null>(null);
 
-	const [flagChunks, setFlagChunks] = useState<FlagChunk[]>([]);
+	const [flag, setFlag] = useState<Flag | null>(null);
 	// prettier-ignore
 	const [countrySelectList, setCountrySelectList] = useState<SelectValue[]>([]);
 	const [currentSelection, setCurrentSelection] = useState<Country | null>(
@@ -43,7 +43,7 @@ export const App = () => {
 				playerId: undefined,
 			});
 			setGame(game);
-			setFlagChunks(game.flagChunks);
+			setFlag(game.flag);
 		};
 		getGame();
 	}, []);
@@ -80,7 +80,7 @@ export const App = () => {
 			countryId: currentSelection.countryId,
 		});
 
-		setFlagChunks(result.flagChunks);
+		setFlag(result.flag);
 		setGuesses(result.guesses);
 		result.correct !== correct && setCorrect(result.correct);
 	};
@@ -97,33 +97,35 @@ export const App = () => {
 					height: 'fit-content',
 				}}
 			>
-				{flagChunks
-					.sort(
-						(a, b) =>
-							a.position.y - b.position.y ||
-							a.position.x - b.position.x
-					)
-					.map((chunk) => {
-						if (chunk.revealed)
+				{flag &&
+					flag.chunks
+						.sort(
+							(a, b) =>
+								a.position.y - b.position.y ||
+								a.position.x - b.position.x
+						)
+						.map((chunk) => {
+							if (chunk.revealed)
+								return (
+									<img
+										className="flag-chunk"
+										itemType=""
+										alt={`x${chunk.position.x}y${chunk.position.y}`}
+										src={`../assets/flag-chunks/${flag.externalRef}/${chunk.externalRef}.${chunk.fileType}`}
+									/>
+								);
 							return (
-								<img
-									className="flag-chunk"
-									alt={`x${chunk.position.x}y${chunk.position.y}`}
-									src={`../assets/flag-chunks/${chunk.externalRef}.png`}
-								/>
+								<div
+									style={{
+										background: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><path d='M100 0 L0 100 ' stroke='darkgrey' stroke-width='1'/><path d='M0 0 L100 100 ' stroke='darkgrey' stroke-width='1'/></svg>"`,
+										backgroundColor: 'grey',
+										backgroundRepeat: 'no-repeat',
+										backgroundPosition: 'center center',
+										backgroundSize: '100% 100%, auto',
+									}}
+								></div>
 							);
-						return (
-							<div
-								style={{
-									background: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><path d='M100 0 L0 100 ' stroke='darkgrey' stroke-width='1'/><path d='M0 0 L100 100 ' stroke='darkgrey' stroke-width='1'/></svg>"`,
-									backgroundColor: 'grey',
-									backgroundRepeat: 'no-repeat',
-									backgroundPosition: 'center center',
-									backgroundSize: '100% 100%, auto',
-								}}
-							></div>
-						);
-					})}
+						})}
 			</div>
 			<div>
 				<Select
