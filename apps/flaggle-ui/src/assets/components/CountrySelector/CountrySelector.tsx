@@ -1,4 +1,5 @@
 import { Country } from '@flaggle/flaggle-api-schemas';
+import { useRef } from 'react';
 import Select from 'react-select';
 
 type SelectValue = {
@@ -13,6 +14,8 @@ export interface CountrySelectorProps {
 	onSelectedCountryChanged: (selectedCountry: Country) => void;
 }
 const CountrySelector: React.FC<CountrySelectorProps> = (props) => {
+	const collator = useRef(new Intl.Collator());
+
 	return (
 		<div>
 			<Select
@@ -22,9 +25,14 @@ const CountrySelector: React.FC<CountrySelectorProps> = (props) => {
 						value: props.selectedCountry.countryId,
 					}
 				}
-				options={props.countries.map(
-					(c): SelectValue => ({ label: c.name, value: c.countryId })
-				)}
+				options={props.countries
+					.sort((a, b) => collator.current.compare(a.name, b.name))
+					.map(
+						(c): SelectValue => ({
+							label: c.name,
+							value: c.countryId,
+						})
+					)}
 				isOptionDisabled={(o) =>
 					props.disabledCountryIds.includes(o.value)
 				}
