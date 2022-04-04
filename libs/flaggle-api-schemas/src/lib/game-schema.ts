@@ -6,7 +6,7 @@ const flagChunkSchema = z.object({
 	/**
 	 * Whether or not this chunk has been revealed to the player yet.
 	 */
-	revealed: z.oboolean(),
+	revealed: z.boolean(),
 
 	/**
 	 * The external ref is a pointer to a piece of a flag.

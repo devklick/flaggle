@@ -7,6 +7,7 @@ import {
 import flaggleApiService from '@flaggle/flaggle-api-service';
 import React, { useEffect, useRef, useState } from 'react';
 import CountrySelector from '../assets/components/CountrySelector';
+import FlagGrid from '../assets/components/FlagGrid';
 
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
 
@@ -69,46 +70,7 @@ export const App = () => {
 
 	return (
 		<div>
-			<div
-				className="flag-grid"
-				style={{
-					display: 'grid',
-					gridTemplateColumns: 'repeat(4, 1fr)',
-					gridTemplateRows: 'repeat(4, 1fr)',
-					width: 'fit-content',
-					height: 'fit-content',
-				}}
-			>
-				{flag &&
-					flag.chunks
-						.sort(
-							(a, b) =>
-								a.position.y - b.position.y ||
-								a.position.x - b.position.x
-						)
-						.map((chunk) => {
-							if (chunk.revealed)
-								return (
-									<img
-										className="flag-chunk"
-										itemType=""
-										alt={`x${chunk.position.x}y${chunk.position.y}`}
-										src={`../assets/flag-chunks/${flag.externalRef}/${chunk.externalRef}.${chunk.fileType}`}
-									/>
-								);
-							return (
-								<div
-									style={{
-										background: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><path d='M100 0 L0 100 ' stroke='darkgrey' stroke-width='1'/><path d='M0 0 L100 100 ' stroke='darkgrey' stroke-width='1'/></svg>"`,
-										backgroundColor: 'grey',
-										backgroundRepeat: 'no-repeat',
-										backgroundPosition: 'center center',
-										backgroundSize: '100% 100%, auto',
-									}}
-								></div>
-							);
-						})}
-			</div>
+			{flag && <FlagGrid flag={flag} />}
 			<CountrySelector
 				countries={countries}
 				disabledCountryIds={guesses.map((g) => g.countryId)}
