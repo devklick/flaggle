@@ -4,8 +4,8 @@ import {
 	FlagChunk,
 } from '@flaggle/flaggle-api-schemas';
 import flaggleApiService from '@flaggle/flaggle-api-service';
-import React, { useEffect, useState } from 'react';
-import Select, { ActionMeta, SingleValue } from 'react-select';
+import React, { useEffect, useRef, useState } from 'react';
+import Select, { SingleValue } from 'react-select';
 
 type SelectValue = {
 	label: string;
@@ -13,10 +13,20 @@ type SelectValue = {
 };
 
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
+
 export const App = () => {
+	/**
+	 * A map to access the Country object using it's ID as the key.
+	 */
+	const countryMap = useRef<Map<string, Country> | null>(null);
+
+	/**
+	 * Whether or not the player has correctly guessed the cuntry the flag belongs to.
+	 */
 	const [correct, setCorrect] = useState<boolean>(false);
-	// prettier-ignore
-	const [game, setGame] = useState<GameType|null>(null);
+
+	const [game, setGame] = useState<GameType | null>(null);
+
 	const [flagChunks, setFlagChunks] = useState<FlagChunk[]>([]);
 	// prettier-ignore
 	const [countrySelectList, setCountrySelectList] = useState<SelectValue[]>([]);
@@ -41,26 +51,26 @@ export const App = () => {
 	useEffect(() => {
 		const getCountries = async () => {
 			const countries = await flaggleApiService.getCountries();
-			setCountrySelectList(
-				countries.map((c) => ({
+			const selectListValues: SelectValue[] = [];
+			countryMap.current = new Map();
+			countries.forEach((c) => {
+				selectListValues.push({
 					label: c.name,
 					value: c.countryId,
-				}))
-			);
+				});
+				countryMap.current?.set(c.countryId, c);
+			});
+			setCountrySelectList(selectListValues);
 		};
 		getCountries();
 	}, []);
 
-	const handleSelectionChange = (
-		newSelection: SingleValue<SelectValue>,
-		actionMeta: ActionMeta<SelectValue>
-	) => {
+	const handleSelectionChange = (newSelection: SingleValue<SelectValue>) =>
 		newSelection &&
-			setCurrentSelection({
-				countryId: newSelection.value,
-				name: newSelection.label,
-			});
-	};
+		setCurrentSelection({
+			countryId: newSelection.value,
+			name: newSelection.label,
+		});
 
 	const handleClick = async () => {
 		if (!game || !currentSelection) return;
@@ -72,7 +82,7 @@ export const App = () => {
 
 		setFlagChunks(result.flagChunks);
 		setGuesses(result.guesses);
-		setCorrect(result.correct);
+		result.correct !== correct && setCorrect(result.correct);
 	};
 
 	return (
@@ -119,6 +129,9 @@ export const App = () => {
 				<Select
 					options={countrySelectList}
 					onChange={handleSelectionChange}
+					isOptionDisabled={(o) =>
+						guesses.some((g) => g.countryId === o.value)
+					}
 				/>
 				<button onClick={handleClick}>Submit</button>
 			</div>
@@ -126,7 +139,19 @@ export const App = () => {
 			{guesses && guesses.length && (
 				<ul>
 					{guesses.map((guess) => {
-						return <li>{guess.countryId}</li>;
+						return (
+							<li
+								style={{
+									backgroundColor: guess.correct
+										? 'green'
+										: 'red',
+								}}
+							>
+								{countryMap.current?.has(guess.countryId) &&
+									countryMap.current.get(guess.countryId)
+										?.name}
+							</li>
+						);
 					})}
 				</ul>
 			)}
