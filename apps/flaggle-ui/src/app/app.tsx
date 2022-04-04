@@ -2,15 +2,11 @@ import {
 	Country,
 	CreateGameResponse,
 	Flag,
+	Guess,
 } from '@flaggle/flaggle-api-schemas';
 import flaggleApiService from '@flaggle/flaggle-api-service';
 import React, { useEffect, useRef, useState } from 'react';
-import Select, { SingleValue } from 'react-select';
-
-type SelectValue = {
-	label: string;
-	value: string;
-};
+import CountrySelector from '../assets/components/CountrySelector';
 
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
 
@@ -29,13 +25,11 @@ export const App = () => {
 
 	const [flag, setFlag] = useState<Flag | null>(null);
 	// prettier-ignore
-	const [countrySelectList, setCountrySelectList] = useState<SelectValue[]>([]);
+	const [countries, setCountries] = useState<Country[]>([]);
 	const [currentSelection, setCurrentSelection] = useState<Country | null>(
 		null
 	);
-	const [guesses, setGuesses] = useState<
-		{ countryId: string; correct: boolean }[]
-	>([]);
+	const [guesses, setGuesses] = useState<Guess[]>([]);
 
 	useEffect(() => {
 		const getGame = async () => {
@@ -51,26 +45,14 @@ export const App = () => {
 	useEffect(() => {
 		const getCountries = async () => {
 			const countries = await flaggleApiService.getCountries();
-			const selectListValues: SelectValue[] = [];
+			setCountries(countries);
 			countryMap.current = new Map();
 			countries.forEach((c) => {
-				selectListValues.push({
-					label: c.name,
-					value: c.countryId,
-				});
 				countryMap.current?.set(c.countryId, c);
 			});
-			setCountrySelectList(selectListValues);
 		};
 		getCountries();
 	}, []);
-
-	const handleSelectionChange = (newSelection: SingleValue<SelectValue>) =>
-		newSelection &&
-		setCurrentSelection({
-			countryId: newSelection.value,
-			name: newSelection.label,
-		});
 
 	const handleClick = async () => {
 		if (!game || !currentSelection) return;
@@ -127,16 +109,12 @@ export const App = () => {
 							);
 						})}
 			</div>
-			<div>
-				<Select
-					options={countrySelectList}
-					onChange={handleSelectionChange}
-					isOptionDisabled={(o) =>
-						guesses.some((g) => g.countryId === o.value)
-					}
-				/>
-				<button onClick={handleClick}>Submit</button>
-			</div>
+			<CountrySelector
+				countries={countries}
+				disabledCountryIds={guesses.map((g) => g.countryId)}
+				onSelectedCountryChanged={setCurrentSelection}
+			/>
+			<button onClick={handleClick}>Submit</button>
 			{correct && <div>YOU GOT IT RIGHT!</div>}
 			{guesses && guesses.length && (
 				<ul>

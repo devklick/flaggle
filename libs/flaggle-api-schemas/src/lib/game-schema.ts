@@ -70,6 +70,18 @@ export const updateGameRequestSchema = z.object({
 	countryId: z.string(),
 });
 
+const guessSchema = z.object({
+	/**
+	 * The ID of the country guessed.
+	 */
+	countryId: z.string(),
+	/**
+	 * Whether or not this country was a correct guess
+	 */
+	correct: z.boolean(),
+});
+const guessesSchema = z.array(guessSchema);
+
 export const updateGameResponseSchema = z.object({
 	/**
 	 * Whether or not the country in the corresponding request
@@ -79,18 +91,7 @@ export const updateGameResponseSchema = z.object({
 	/**
 	 * The cumulative guesses during the game.
 	 */
-	guesses: z.array(
-		z.object({
-			/**
-			 * The ID of the country guessed.
-			 */
-			countryId: z.string(),
-			/**
-			 * Whether or not this country was a correct guess
-			 */
-			correct: z.boolean(),
-		})
-	),
+	guesses: guessesSchema,
 	flag: flagSchema,
 });
 
@@ -101,3 +102,4 @@ export type UpdateGameResponse = z.infer<typeof updateGameResponseSchema>;
 export type Flag = z.infer<typeof flagSchema>;
 export type FlagChunk = z.infer<typeof flagChunkSchema>;
 export type FileType = z.infer<typeof fileTypeSchema>;
+export type Guess = z.infer<typeof guessSchema>;
