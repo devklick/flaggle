@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import {
 	Country,
 	CreateGameResponse,
@@ -5,10 +6,12 @@ import {
 	Guess,
 } from '@flaggle/flaggle-api-schemas';
 import flaggleApiService from '@flaggle/flaggle-api-service';
-import React, { useEffect, useRef, useState } from 'react';
+
+import ButtonContainer from '../assets/components/ButtonContainer';
 import CountrySelector from '../assets/components/CountrySelector';
 import FlagGrid from '../assets/components/FlagGrid';
 import GuessList from '../assets/components/GuessList';
+import InfoPanel from '../assets/components/InfoPanel';
 
 type GameState = 'loading' | 'playing' | 'correct' | 'no-more-guesses';
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
@@ -121,7 +124,16 @@ export const App = () => {
 				selectedCountry={selectedCountry}
 				disabled={gameState !== 'playing'}
 			/>
-			<button onClick={handleClick}>Submit</button>
+			<ButtonContainer
+				buttons={[
+					{
+						text: 'Submit',
+						onClick: handleClick,
+						disabled: gameState === 'playing',
+					},
+				]}
+			/>
+			{/* <InfoPanel /> */}
 			{gameState === 'correct' && <div>YOU GOT IT RIGHT!</div>}
 			<GuessList guesses={guesses} countryMap={countryMap.current} />
 		</div>
