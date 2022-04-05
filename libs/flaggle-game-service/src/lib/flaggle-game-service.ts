@@ -191,9 +191,12 @@ export const updateGame = async (
 			(c) => c.FlagChunk.ExternalRef === chunk.ExternalRef
 		);
 		return {
-			revealed,
-			fileType: mapFileTyle(game.Country.Flag.FileType),
-			externalRef: revealed ? chunk.ExternalRef : null,
+			revealed: revealed || correct,
+			fileType:
+				revealed || correct
+					? mapFileTyle(game.Country.Flag.FileType)
+					: null,
+			externalRef: revealed || correct ? chunk.ExternalRef : null,
 			position: {
 				x: chunk.X,
 				y: chunk.Y,
