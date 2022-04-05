@@ -88,96 +88,21 @@ export const updateGame = async (
 	request: UpdateGameRequest
 ): Promise<UpdateGameResponse> => {
 	// Fetch the game data
-	const game = await client.game.findFirst({
-		where: {
-			ExternalRef: request.gameId,
-		},
-		select: {
-			Id: true,
-			PlayerId: true,
-			Country: {
-				select: {
-					ExternalRef: true,
-					Id: true,
-					Flag: {
-						select: {
-							ExternalRef: true,
-							FileType: true,
-							Chunks: {
-								select: {
-									FileType: true,
-									ExternalRef: true,
-									X: true,
-									Y: true,
-								},
-							},
-						},
-					},
-				},
-			},
-			RevealedChunks: {
-				select: {
-					OrderId: true,
-					Id: true,
-					FlagChunk: {
-						select: {
-							ExternalRef: true,
-							X: true,
-							Y: true,
-						},
-					},
-				},
-			},
-			Answers: {
-				select: {
-					Id: true,
-					Country: {
-						select: {
-							ExternalRef: true,
-						},
-					},
-				},
-			},
-		},
-	});
+	const game = await getGameByExternalRef(request.gameId);
+
 	// Record the answer
-	// prettier-ignore
-	const latestRevealedChunk = game.RevealedChunks.sort((a, b) => (a.OrderId - b.OrderId))[game.RevealedChunks.length -1];
+	const latestRevealedChunk = game.RevealedChunks.sort(
+		(a, b) => a.OrderId - b.OrderId
+	)[game.RevealedChunks.length - 1];
 	const correct = request.countryId === game.Country.ExternalRef;
-	const latestAnswer = await client.answer.create({
-		data: {
-			OrderId: game.Answers.length + 1,
-			Correct: correct,
-			Country: {
-				connect: {
-					ExternalRef: request.countryId,
-				},
-			},
-			Game: {
-				connect: {
-					Id: game.Id,
-				},
-			},
-			Player: {
-				connect: {
-					Id: game.PlayerId,
-				},
-			},
-			RevealedChunk: {
-				connect: {
-					Id: latestRevealedChunk.Id,
-				},
-			},
-		},
-		select: {
-			Id: true,
-			Country: {
-				select: {
-					ExternalRef: true,
-				},
-			},
-		},
-	});
+	const latestAnswer = await createAnswerEntity(
+		correct,
+		game.Answers.length + 1,
+		game.Country.Id,
+		game.Id,
+		game.PlayerId,
+		latestRevealedChunk.Id
+	);
 
 	// Convert the answers into objects expected by the API response
 	const guesses = [...game.Answers].concat([latestAnswer]).map((answer) => ({
@@ -249,6 +174,103 @@ export const updateGame = async (
 		},
 	};
 };
+
+const getGameByExternalRef = async (externalRef: string) =>
+	await client.game.findFirst({
+		where: {
+			ExternalRef: externalRef,
+		},
+		select: {
+			Id: true,
+			PlayerId: true,
+			Country: {
+				select: {
+					ExternalRef: true,
+					Id: true,
+					Flag: {
+						select: {
+							ExternalRef: true,
+							FileType: true,
+							Chunks: {
+								select: {
+									FileType: true,
+									ExternalRef: true,
+									X: true,
+									Y: true,
+								},
+							},
+						},
+					},
+				},
+			},
+			RevealedChunks: {
+				select: {
+					OrderId: true,
+					Id: true,
+					FlagChunk: {
+						select: {
+							ExternalRef: true,
+							X: true,
+							Y: true,
+						},
+					},
+				},
+			},
+			Answers: {
+				select: {
+					Id: true,
+					Country: {
+						select: {
+							ExternalRef: true,
+						},
+					},
+				},
+			},
+		},
+	});
+
+const createAnswerEntity = async (
+	correct: boolean,
+	orderId: number,
+	countryId: number,
+	gameId: number,
+	playerId: number,
+	lastRevealedChunkId: number
+) =>
+	await client.answer.create({
+		data: {
+			OrderId: orderId,
+			Correct: correct,
+			Country: {
+				connect: {
+					Id: countryId,
+				},
+			},
+			Game: {
+				connect: {
+					Id: gameId,
+				},
+			},
+			Player: {
+				connect: {
+					Id: playerId,
+				},
+			},
+			RevealedChunk: {
+				connect: {
+					Id: lastRevealedChunkId,
+				},
+			},
+		},
+		select: {
+			Id: true,
+			Country: {
+				select: {
+					ExternalRef: true,
+				},
+			},
+		},
+	});
 
 const mapFileTyle = (fileType: FileType_DB): FileType_API => {
 	switch (fileType) {
