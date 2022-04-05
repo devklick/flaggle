@@ -8,6 +8,7 @@ import flaggleApiService from '@flaggle/flaggle-api-service';
 import React, { useEffect, useRef, useState } from 'react';
 import CountrySelector from '../assets/components/CountrySelector';
 import FlagGrid from '../assets/components/FlagGrid';
+import GuessList from '../assets/components/GuessList';
 
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
 
@@ -15,7 +16,7 @@ export const App = () => {
 	/**
 	 * A map to access the Country object using it's ID as the key.
 	 */
-	const countryMap = useRef<Map<string, Country> | null>(null);
+	const countryMap = useRef<Map<string, Country>>(new Map());
 
 	/**
 	 * Whether or not the player has correctly guessed the cuntry the flag belongs to.
@@ -24,7 +25,11 @@ export const App = () => {
 
 	const [game, setGame] = useState<GameType | null>(null);
 
-	const [flag, setFlag] = useState<Flag | null>(null);
+	const [flag, setFlag] = useState<Flag>({
+		chunks: [],
+		externalRef: '',
+		fileType: 'none',
+	});
 	// prettier-ignore
 	const [countries, setCountries] = useState<Country[]>([]);
 	const [currentSelection, setCurrentSelection] = useState<Country | null>(
@@ -71,7 +76,7 @@ export const App = () => {
 
 	return (
 		<div>
-			{flag && <FlagGrid flag={flag} />}
+			<FlagGrid flag={flag} />
 			<CountrySelector
 				countries={countries}
 				disabledCountryIds={guesses.map((g) => g.countryId)}
@@ -80,25 +85,7 @@ export const App = () => {
 			/>
 			<button onClick={handleClick}>Submit</button>
 			{correct && <div>YOU GOT IT RIGHT!</div>}
-			{guesses && guesses.length && (
-				<ul>
-					{guesses.map((guess) => {
-						return (
-							<li
-								style={{
-									backgroundColor: guess.correct
-										? 'green'
-										: 'red',
-								}}
-							>
-								{countryMap.current?.has(guess.countryId) &&
-									countryMap.current.get(guess.countryId)
-										?.name}
-							</li>
-						);
-					})}
-				</ul>
-			)}
+			<GuessList guesses={guesses} countryMap={countryMap.current} />
 		</div>
 	);
 };

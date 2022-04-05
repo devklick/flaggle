@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const fileTypeSchema = z.enum(['png']);
+const fileTypeSchema = z.enum(['none', 'png']);
+
+// TODO: Create different schemas and types for revealed vs unrevealed flags
 
 const flagChunkSchema = z.object({
 	/**
@@ -15,7 +17,7 @@ const flagChunkSchema = z.object({
 	 * If the chunk has not been revealed, this will be undefined.
 	 */
 	externalRef: z.string().optional(),
-	fileType: fileTypeSchema,
+	fileType: fileTypeSchema.optional(),
 
 	/**
 	 * The position is relative within the split flag.
