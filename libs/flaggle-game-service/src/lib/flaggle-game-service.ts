@@ -204,8 +204,11 @@ export const updateGame = async (
 		};
 	});
 
+	const gameOver =
+		guesses.length === game.Country.Flag.Chunks.length && !correct;
+
 	// If the answer was incorrect, we need to fetch another chunk to serve as the next clue
-	if (!correct) {
+	if (!correct && !gameOver) {
 		const remainingChunks = game.Country.Flag.Chunks.filter(
 			(chunk) =>
 				!game.RevealedChunks.some(

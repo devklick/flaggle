@@ -18,10 +18,9 @@ export const App = () => {
 	 */
 	const countryMap = useRef<Map<string, Country>>(new Map());
 
-	/**
-	 * Whether or not the player has correctly guessed the cuntry the flag belongs to.
-	 */
-	const [correct, setCorrect] = useState<boolean>(false);
+	const [gameState, setGameState] = useState<
+		'loading' | 'playing' | 'correct' | 'no-more-guesses'
+	>('loading');
 
 	const [game, setGame] = useState<GameType | null>(null);
 
@@ -60,6 +59,25 @@ export const App = () => {
 		getCountries();
 	}, []);
 
+	const loaded = countries.length > 0 && game !== null;
+	useEffect(() => {
+		loaded && setGameState('playing');
+	}, [loaded]);
+
+	useEffect(() => {
+		console.log(
+			'guesses',
+			guesses.length,
+			'chunks',
+			flag.chunks.length,
+			'state',
+			gameState
+		);
+		const usedAllGuesses =
+			guesses.length === flag.chunks.length && gameState !== 'correct';
+		usedAllGuesses && setGameState('no-more-guesses');
+	}, [flag.chunks.length, gameState, guesses.length]);
+
 	const handleClick = async () => {
 		if (!game || !currentSelection) return;
 
@@ -70,7 +88,7 @@ export const App = () => {
 
 		setFlag(result.flag);
 		setGuesses(result.guesses);
-		result.correct !== correct && setCorrect(result.correct);
+		result.correct && setGameState('correct');
 		setCurrentSelection(null);
 	};
 
@@ -82,9 +100,10 @@ export const App = () => {
 				disabledCountryIds={guesses.map((g) => g.countryId)}
 				onSelectedCountryChanged={setCurrentSelection}
 				selectedCountry={currentSelection}
+				disabled={gameState !== 'playing'}
 			/>
 			<button onClick={handleClick}>Submit</button>
-			{correct && <div>YOU GOT IT RIGHT!</div>}
+			{gameState === 'correct' && <div>YOU GOT IT RIGHT!</div>}
 			<GuessList guesses={guesses} countryMap={countryMap.current} />
 		</div>
 	);

@@ -12,6 +12,7 @@ export interface CountrySelectorProps {
 	disabledCountryIds: string[];
 	selectedCountry: Country | null;
 	onSelectedCountryChanged: (selectedCountry: Country) => void;
+	disabled: boolean;
 }
 const CountrySelector: React.FC<CountrySelectorProps> = (props) => {
 	const collator = useRef(new Intl.Collator());
@@ -19,6 +20,7 @@ const CountrySelector: React.FC<CountrySelectorProps> = (props) => {
 	return (
 		<div>
 			<Select
+				isDisabled={props.disabled}
 				value={
 					props.selectedCountry && {
 						label: props.selectedCountry.name,
