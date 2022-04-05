@@ -7,11 +7,12 @@ import {
 } from '@flaggle/flaggle-api-schemas';
 import flaggleApiService from '@flaggle/flaggle-api-service';
 
-import ButtonContainer from '../assets/components/ButtonContainer';
-import CountrySelector from '../assets/components/CountrySelector';
-import FlagGrid from '../assets/components/FlagGrid';
-import GuessList from '../assets/components/GuessList';
-import InfoPanel from '../assets/components/InfoPanel';
+import ButtonContainer from '../components/ButtonContainer';
+import CountrySelector from '../components/CountrySelector';
+import FlagGrid from '../components/FlagGrid';
+import GuessList from '../components/GuessList';
+import InfoPanel from '../components/InfoPanel';
+import Header from '../components/Header';
 
 type GameState = 'loading' | 'playing' | 'correct' | 'no-more-guesses';
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
@@ -115,27 +116,42 @@ export const App = () => {
 	};
 
 	return (
-		<div>
-			<FlagGrid flag={flag} />
-			<CountrySelector
-				countries={countries}
-				disabledCountryIds={guesses.map((g) => g.countryId)}
-				onSelectedCountryChanged={setSelctedCountry}
-				selectedCountry={selectedCountry}
-				disabled={gameState !== 'playing'}
-			/>
-			<ButtonContainer
-				buttons={[
-					{
-						text: 'Submit',
-						onClick: handleClick,
-						disabled: gameState === 'playing',
-					},
-				]}
-			/>
-			{/* <InfoPanel /> */}
-			{gameState === 'correct' && <div>YOU GOT IT RIGHT!</div>}
-			<GuessList guesses={guesses} countryMap={countryMap.current} />
+		<div className="app">
+			<Header />
+			<div className="content">
+				<FlagGrid flag={flag} />
+				<CountrySelector
+					countries={countries}
+					disabledCountryIds={guesses.map((g) => g.countryId)}
+					onSelectedCountryChanged={setSelctedCountry}
+					selectedCountry={selectedCountry}
+					disabled={gameState !== 'playing'}
+				/>
+				<ButtonContainer
+					primaryButtons={[
+						{
+							text: 'Submit',
+							onClick: handleClick,
+							disabled: gameState !== 'playing',
+						},
+					]}
+					secondaryButtons={[
+						{
+							text: 'Get next chunk',
+							onClick: () => null,
+							disabled: true,
+						},
+						{
+							text: 'Give up',
+							onClick: () => null,
+							disabled: true,
+						},
+					]}
+				/>
+				{/* <InfoPanel /> */}
+				{gameState === 'correct' && <div>YOU GOT IT RIGHT!</div>}
+				<GuessList guesses={guesses} countryMap={countryMap.current} />
+			</div>
 		</div>
 	);
 };

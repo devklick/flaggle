@@ -2,6 +2,7 @@ import {
 	CreateGameRequest,
 	CreateGameResponse,
 	FlagChunk,
+	Guess,
 	UpdateGameRequest,
 	UpdateGameResponse,
 } from '@flaggle/flaggle-api-schemas';
@@ -98,17 +99,20 @@ export const updateGame = async (
 	const latestAnswer = await createAnswerEntity(
 		correct,
 		game.Answers.length + 1,
-		game.Country.Id,
+		request.countryId,
 		game.Id,
 		game.PlayerId,
 		latestRevealedChunk.Id
 	);
 
 	// Convert the answers into objects expected by the API response
-	const guesses = [...game.Answers].concat([latestAnswer]).map((answer) => ({
-		countryId: answer.Country.ExternalRef,
-		correct: answer.Country.ExternalRef === game.Country.ExternalRef,
-	}));
+	const guesses = [...game.Answers].concat([latestAnswer]).map(
+		(answer): Guess => ({
+			countryId: answer.Country.ExternalRef,
+			correct: answer.Country.ExternalRef === game.Country.ExternalRef,
+			guessNumber: answer.OrderId,
+		})
+	);
 
 	// Convert he chunks to objects expected by the API response
 	const flagChunks = game.Country.Flag.Chunks.map((chunk): FlagChunk => {
@@ -219,6 +223,7 @@ const getGameByExternalRef = async (externalRef: string) =>
 			Answers: {
 				select: {
 					Id: true,
+					OrderId: true,
 					Country: {
 						select: {
 							ExternalRef: true,
@@ -232,7 +237,7 @@ const getGameByExternalRef = async (externalRef: string) =>
 const createAnswerEntity = async (
 	correct: boolean,
 	orderId: number,
-	countryId: number,
+	countryExternalRef: string,
 	gameId: number,
 	playerId: number,
 	lastRevealedChunkId: number
@@ -243,7 +248,7 @@ const createAnswerEntity = async (
 			Correct: correct,
 			Country: {
 				connect: {
-					Id: countryId,
+					ExternalRef: countryExternalRef,
 				},
 			},
 			Game: {
@@ -264,6 +269,7 @@ const createAnswerEntity = async (
 		},
 		select: {
 			Id: true,
+			OrderId: true,
 			Country: {
 				select: {
 					ExternalRef: true,

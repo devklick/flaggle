@@ -1,1 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+body {
+    margin: 0;
+}
+
+@import "./app/app.module.scss";
+@import "./components/FlagGrid/FlagGrid.module.scss";
+@import "./components/CountrySelector/CountrySelector.module.scss";
+@import "./components/Header/Header.module.scss";
+@import "./components//ButtonContainer/ButtonContainer.module.scss";

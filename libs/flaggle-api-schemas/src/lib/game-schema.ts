@@ -81,6 +81,10 @@ const guessSchema = z.object({
 	 * Whether or not this country was a correct guess
 	 */
 	correct: z.boolean(),
+	/**
+	 * The number of the guess.
+	 */
+	guessNumber: z.number().positive().int(),
 });
 const guessesSchema = z.array(guessSchema);
 

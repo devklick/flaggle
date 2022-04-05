@@ -5,10 +5,11 @@ interface GuessListProps {
 	guesses: Guess[];
 	countryMap: Map<string, Country>;
 }
-const GuessList: React.FC<GuessListProps> = (props) => {
-	return (
-		<ul>
-			{props.guesses.map((guess) => {
+const GuessList: React.FC<GuessListProps> = (props) => (
+	<ol reversed>
+		{props.guesses
+			.sort((a, b) => b.guessNumber - a.guessNumber)
+			.map((guess) => {
 				return (
 					<li
 						style={{
@@ -20,8 +21,7 @@ const GuessList: React.FC<GuessListProps> = (props) => {
 					</li>
 				);
 			})}
-		</ul>
-	);
-};
+	</ol>
+);
 
 export default GuessList;
