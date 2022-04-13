@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { boolean, z } from 'zod';
 
 const fileTypeSchema = z.enum(['none', 'png']);
 
@@ -69,7 +69,13 @@ export const updateGameRequestSchema = z.object({
 	 * with the country entity in the DB.
 	 * This is the country that the player is guessing the flag belongs to.
 	 */
-	countryId: z.string(),
+	countryId: z.string().optional(),
+
+	/**
+	 * The player did not wish to submit answer
+	 * but instead wants the next flag chunk as the next clue.
+	 */
+	skipAndGetNextChunk: z.boolean().optional(),
 });
 
 const guessSchema = z.object({

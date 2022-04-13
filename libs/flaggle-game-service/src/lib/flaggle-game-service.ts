@@ -91,28 +91,36 @@ export const updateGame = async (
 	// Fetch the game data
 	const game = await getGameByExternalRef(request.gameId);
 
-	// Record the answer
-	const latestRevealedChunk = game.RevealedChunks.sort(
-		(a, b) => a.OrderId - b.OrderId
-	)[game.RevealedChunks.length - 1];
-	const correct = request.countryId === game.Country.ExternalRef;
-	const latestAnswer = await createAnswerEntity(
-		correct,
-		game.Answers.length + 1,
-		request.countryId,
-		game.Id,
-		game.PlayerId,
-		latestRevealedChunk.Id
-	);
-
-	// Convert the answers into objects expected by the API response
-	const guesses = [...game.Answers].concat([latestAnswer]).map(
-		(answer): Guess => ({
+	const mapAnswers = (...answers: typeof game.Answers): Guess[] =>
+		answers.map((answer) => ({
 			countryId: answer.Country.ExternalRef,
 			correct: answer.Country.ExternalRef === game.Country.ExternalRef,
 			guessNumber: answer.OrderId,
-		})
-	);
+		}));
+
+	// Convert the answers into objects expected by the API response
+	const guesses = mapAnswers(...game.Answers);
+
+	// Record the answer if one was provided
+	const correct =
+		request.countryId && request.countryId === game.Country.ExternalRef;
+
+	if (request.countryId) {
+		const latestRevealedChunk = game.RevealedChunks.sort(
+			(a, b) => a.OrderId - b.OrderId
+		)[game.RevealedChunks.length - 1];
+
+		const latestAnswer = await createAnswerEntity(
+			correct,
+			game.Answers.length + 1,
+			request.countryId,
+			game.Id,
+			game.PlayerId,
+			latestRevealedChunk.Id
+		);
+
+		mapAnswers(latestAnswer).forEach((guess) => guesses.push(guess));
+	}
 
 	// Convert he chunks to objects expected by the API response
 	const flagChunks = game.Country.Flag.Chunks.map((chunk): FlagChunk => {
@@ -136,8 +144,8 @@ export const updateGame = async (
 	const gameOver =
 		guesses.length === game.Country.Flag.Chunks.length && !correct;
 
-	// If the answer was incorrect, we need to fetch another chunk to serve as the next clue
-	if (!correct && !gameOver) {
+	// If the answer was incorrect, or no answer was given, we need to fetch another chunk to serve as the next clue
+	if (!gameOver && (!correct || request.skipAndGetNextChunk)) {
 		const remainingChunks = game.Country.Flag.Chunks.filter(
 			(chunk) =>
 				!game.RevealedChunks.some(

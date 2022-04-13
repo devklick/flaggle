@@ -101,12 +101,25 @@ export const App = () => {
 		usedAllGuesses && setGameState('no-more-guesses');
 	}, [usedAllGuesses]);
 
-	const handleClick = async () => {
-		if (!game || !selectedCountry) return;
+	const handleSubmitAnswer = async () => {
+		if (!selectedCountry) return;
+		return await apiCall(selectedCountry.countryId);
+	};
 
+	const handleGetNextChunk = async () => {
+		console.debug('calling callApi function');
+		return await apiCall(undefined, true);
+	};
+
+	const apiCall = async (
+		countryId: string | undefined,
+		skipAndGetNextChunk = false
+	) => {
+		if (!game) return;
 		const result = await flaggleApiService.submitAnswer({
 			gameId: game.gameId,
-			countryId: selectedCountry.countryId,
+			countryId,
+			skipAndGetNextChunk,
 		});
 
 		setFlag(result.flag);
@@ -131,15 +144,15 @@ export const App = () => {
 					primaryButtons={[
 						{
 							text: 'Submit',
-							onClick: handleClick,
+							onClick: handleSubmitAnswer,
 							disabled: gameState !== 'playing',
 						},
 					]}
 					secondaryButtons={[
 						{
 							text: 'Get next chunk',
-							onClick: () => null,
-							disabled: true,
+							onClick: handleGetNextChunk,
+							disabled: flag.chunks.every((c) => c.revealed),
 						},
 						{
 							text: 'Give up',
