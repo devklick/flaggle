@@ -111,7 +111,8 @@ export const App = () => {
 	};
 
 	const handleGiveUp = async () => {
-		return await apiCall(undefined, false, true);
+		await apiCall(undefined, false, true);
+		setGameState('no-more-guesses');
 	};
 
 	const apiCall = async (
