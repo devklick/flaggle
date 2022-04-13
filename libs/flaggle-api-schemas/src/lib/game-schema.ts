@@ -75,7 +75,13 @@ export const updateGameRequestSchema = z.object({
 	 * The player did not wish to submit answer
 	 * but instead wants the next flag chunk as the next clue.
 	 */
-	skipAndGetNextChunk: z.boolean().optional(),
+	skipAndGetNextChunk: z.boolean().optional().default(false),
+
+	/**
+	 * The player does not want to submit any further answers and
+	 * wants to find out what the answer is.
+	 */
+	giveUp: z.boolean().optional().default(false),
 });
 
 const guessSchema = z.object({

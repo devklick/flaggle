@@ -91,6 +91,8 @@ export const updateGame = async (
 	// Fetch the game data
 	const game = await getGameByExternalRef(request.gameId);
 
+	if (!game) throw new Error('Bad game ID');
+
 	const mapAnswers = (...answers: typeof game.Answers): Guess[] =>
 		answers.map((answer) => ({
 			countryId: answer.Country.ExternalRef,
@@ -103,7 +105,7 @@ export const updateGame = async (
 
 	// Record the answer if one was provided
 	const correct =
-		request.countryId && request.countryId === game.Country.ExternalRef;
+		!!request.countryId && request.countryId === game.Country.ExternalRef;
 
 	if (request.countryId) {
 		const latestRevealedChunk = game.RevealedChunks.sort(
@@ -132,8 +134,8 @@ export const updateGame = async (
 			fileType:
 				revealed || correct
 					? mapFileTyle(game.Country.Flag.FileType)
-					: null,
-			externalRef: revealed || correct ? chunk.ExternalRef : null,
+					: undefined,
+			externalRef: revealed || correct ? chunk.ExternalRef : undefined,
 			position: {
 				x: chunk.X,
 				y: chunk.Y,
@@ -145,37 +147,49 @@ export const updateGame = async (
 		guesses.length === game.Country.Flag.Chunks.length && !correct;
 
 	// If the answer was incorrect, or no answer was given, we need to fetch another chunk to serve as the next clue
-	if (!gameOver && (!correct || request.skipAndGetNextChunk)) {
+	if (!gameOver && !correct) {
 		const remainingChunks = game.Country.Flag.Chunks.filter(
 			(chunk) =>
 				!game.RevealedChunks.some(
 					(r) => r.FlagChunk.ExternalRef === chunk.ExternalRef
 				)
 		);
-		const nextChunk = getRandomItem(remainingChunks);
-		await client.revealedChunk.create({
-			data: {
-				OrderId: flagChunks.length + 1,
-				FlagChunk: {
-					connect: {
-						ExternalRef: nextChunk.ExternalRef,
-					},
-				},
-				Game: {
-					connect: {
-						Id: game.Id,
-					},
-				},
-			},
-		});
-		const next = flagChunks.find(
-			(c) => c.position.x === nextChunk.X && c.position.y == nextChunk.Y
-		);
-		next.revealed = true;
-		next.fileType = mapFileTyle(nextChunk.FileType);
-		next.externalRef = nextChunk.ExternalRef;
-	}
 
+		const revealChunk = (chunk: typeof remainingChunks[0]) => {
+			const next = flagChunks.find(
+				(c) => c.position.x === chunk.X && c.position.y == chunk.Y
+			);
+			if (next) {
+				next.revealed = true;
+				next.fileType = mapFileTyle(chunk.FileType);
+				next.externalRef = chunk.ExternalRef;
+			}
+		};
+		if (request.skipAndGetNextChunk) {
+			const nextChunk = getRandomItem(remainingChunks);
+			await client.revealedChunk.create({
+				data: {
+					OrderId: flagChunks.length + 1,
+					FlagChunk: {
+						connect: {
+							ExternalRef: nextChunk.ExternalRef,
+						},
+					},
+					Game: {
+						connect: {
+							Id: game.Id,
+						},
+					},
+				},
+			});
+
+			revealChunk(nextChunk);
+		} else if (request.giveUp) {
+			remainingChunks.forEach((remainingChunk) => {
+				revealChunk(remainingChunk);
+			});
+		}
+	}
 	return {
 		correct,
 		guesses,

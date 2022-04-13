@@ -107,19 +107,24 @@ export const App = () => {
 	};
 
 	const handleGetNextChunk = async () => {
-		console.debug('calling callApi function');
 		return await apiCall(undefined, true);
+	};
+
+	const handleGiveUp = async () => {
+		return await apiCall(undefined, false, true);
 	};
 
 	const apiCall = async (
 		countryId: string | undefined,
-		skipAndGetNextChunk = false
+		skipAndGetNextChunk = false,
+		giveUp = false
 	) => {
 		if (!game) return;
 		const result = await flaggleApiService.submitAnswer({
 			gameId: game.gameId,
 			countryId,
 			skipAndGetNextChunk,
+			giveUp,
 		});
 
 		setFlag(result.flag);
@@ -156,8 +161,8 @@ export const App = () => {
 						},
 						{
 							text: 'Give up',
-							onClick: () => null,
-							disabled: true,
+							onClick: handleGiveUp,
+							disabled: gameState !== 'playing',
 						},
 					]}
 				/>
