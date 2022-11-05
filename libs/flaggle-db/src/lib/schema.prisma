@@ -19,6 +19,7 @@ model Country {
   Flag    Flag     @relation(fields: [FlagId], references: [Id])
   Games   Game[]
   Answers Answer[]
+
   @@map("country")
 }
 
@@ -85,8 +86,8 @@ model RevealedChunk {
   CreatedOn   DateTime @default(now()) @map("created_on")
   UpdatedOn   DateTime @updatedAt @map("updated_on")
   GameId      Int      @map("game_id")
-  FlagChunkId Int
-  AnswerId    Int?
+  FlagChunkId Int      @map("flag_chunk_id")
+  AnswerId    Int?     @map("answer_id")
 
   Game      Game      @relation(fields: [GameId], references: [Id])
   FlagChunk FlagChunk @relation(fields: [FlagChunkId], references: [Id])
@@ -115,7 +116,7 @@ model Answer {
 }
 
 enum FileType {
-  PNG  @map("png")
+  PNG @map("png")
 
   @@map("file_type")
 }
