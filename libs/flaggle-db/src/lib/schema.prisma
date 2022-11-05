@@ -87,11 +87,10 @@ model RevealedChunk {
   UpdatedOn   DateTime @updatedAt @map("updated_on")
   GameId      Int      @map("game_id")
   FlagChunkId Int      @map("flag_chunk_id")
-  AnswerId    Int?     @map("answer_id")
 
   Game      Game      @relation(fields: [GameId], references: [Id])
   FlagChunk FlagChunk @relation(fields: [FlagChunkId], references: [Id])
-  Answer    Answer?
+  Answers   Answer[]
 
   @@map("revealed_chunk")
 }
@@ -106,7 +105,7 @@ model Answer {
   PlayerId        Int           @map("player_id")
   CountryId       Int           @map("country_id")
   Correct         Boolean       @map("correct")
-  RevealedChunkId Int           @unique @map("revealed_chunk_id")
+  RevealedChunkId Int           @map("revealed_chunk_id")
   Game            Game          @relation(fields: [GameId], references: [Id])
   Player          Player        @relation(fields: [PlayerId], references: [Id])
   Country         Country       @relation(fields: [CountryId], references: [Id])
