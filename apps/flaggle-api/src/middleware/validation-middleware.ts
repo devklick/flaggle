@@ -4,7 +4,10 @@ import { z } from 'zod';
 /**
  * The various sources of data from an express request.
  */
-export type HttpDataSource = 'body' | 'route' | 'query' | 'session' | 'params';
+export type HttpDataSource = keyof Pick<
+	express.Request,
+	'body' | 'route' | 'query' | 'params'
+>;
 
 /**
  * The source of data to be extracted from an HTTP request.
@@ -89,6 +92,7 @@ const getDataFromSources = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let data: any = {};
 	sourceConfigs.forEach((config) => {
+		req.body;
 		const moreData = req[config.source];
 		if (config.spread) {
 			data = { ...data, ...moreData };
