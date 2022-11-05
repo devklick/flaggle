@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"license": "MIT",
 	"scripts": {
-		"start": "nx serve",
+		"start": "nx run-many --parallel --target=serve --projects=flaggle-api,flaggle-ui",
 		"build": "nx build",
 		"test": "nx test"
 	},
