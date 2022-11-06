@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-    The flag guessing game.
+    The flag-guessing game.
 </p>
 <br/>
 <br/>
@@ -13,6 +13,15 @@
 # What it is
 
 A simple guessing game where you are presented with pieces of an image. The image is of a flag, and you need to guess which country the flag belongs to. If you do not know, you can reveal the next piece of the flag, or you can skip it.
+
+<details>
+<summary>Click to see screenshots!</summary>
+
+![001](./docs/images/001.png)
+![002](./docs/images/002.png)
+![003](./docs/images/003.png)
+![004](./docs/images/004.png)
+</details>
 
 # Running locally
 
@@ -28,10 +37,10 @@ Then install the package:
 npm i
 ```
 
-A posgres database is required to run the game, and the most convenient way to get started is to use docker to run a container with postgres installed. For example: 
+A postgres database is required to run the game, and the most convenient way to get started is to use docker to run a container with postgres installed. For example: 
 
 ```
-docker run --name some-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres
+docker run --name flaggle-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres
 ```
 
 (See the [official docs](https://hub.docker.com/_/postgres) for more on this.)
@@ -64,3 +73,15 @@ Now we're ready to run the application. To do so, we can simply run:
 npm start
 ```
 This will go off and run the API and UI in parallel. 
+
+# Technologies Used
+
+- [Nx](https://nx.dev/)
+- [React](https://reactjs.org/)
+- [Express](https://expressjs.com/)
+- [Prisma](https://www.prisma.io/)
+- [PostgreSql](https://www.postgresql.org/)
+
+# Services Used
+
+- [Rest Countries](https://restcountries.com)
