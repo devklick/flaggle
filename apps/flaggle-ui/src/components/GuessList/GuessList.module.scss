@@ -1,0 +1,32 @@
+.result {
+  text-align: right;
+  width: auto;
+  margin-right: 0;
+  font-size: 32px;
+  font-weight: bold;
+}
+.guess-list {
+  width: 100%;
+
+  &__guess {
+    width: 100%;
+    display: flex;
+    min-height: 30px;
+    align-items: center;
+  }
+  &__country {
+    text-align: left;
+    width: 100%;
+    color: white;
+  }
+  &__result {
+    &-correct {
+      @extend .result;
+      color: green;
+    }
+    &-incorrect {
+      @extend .result;
+      color: red;
+    }
+  }
+}

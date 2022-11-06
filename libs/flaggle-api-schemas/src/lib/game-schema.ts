@@ -111,6 +111,7 @@ export const updateGameResponseSchema = z.object({
 	 */
 	guesses: guessesSchema,
 	flag: flagSchema,
+	countryName: z.string().optional(),
 });
 
 export type CreateGameRequest = z.infer<typeof createGameRequestSchema>;

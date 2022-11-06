@@ -13,6 +13,7 @@ import FlagGrid from '../components/FlagGrid';
 import GuessList from '../components/GuessList';
 import InfoPanel from '../components/InfoPanel';
 import Header from '../components/Header';
+import Name from '../components/CountryName';
 
 type GameState = 'loading' | 'playing' | 'correct' | 'no-more-guesses';
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
@@ -43,7 +44,7 @@ export const App = () => {
 	const [gameState, setGameState] = useState<GameState>('loading');
 
 	/**
-	 * The constant game data - doesnt change after intially loaded.
+	 * The constant game data - doesnt change after initially loaded.
 	 */
 	const [game, setGame] = useState<GameType>(defaultGameType);
 
@@ -61,7 +62,11 @@ export const App = () => {
 	/**
 	 * The country that he player has currently selected as their guess.
 	 */
-	const [selectedCountry, setSelctedCountry] = useState<Country | null>(null);
+	const [selectedCountry, setSelectedCountry] = useState<Country | null>(
+		null
+	);
+
+	const [countryName, setCountryName] = useState<string | null>(null);
 
 	// Fetch the list of countries
 	useEffect(() => {
@@ -131,7 +136,8 @@ export const App = () => {
 		setFlag(result.flag);
 		setGuesses(result.guesses);
 		result.correct && setGameState('correct');
-		setSelctedCountry(null);
+		setCountryName(result.countryName ?? null);
+		setSelectedCountry(null);
 	};
 
 	return (
@@ -139,36 +145,37 @@ export const App = () => {
 			<Header />
 			<div className="content">
 				<FlagGrid flag={flag} />
+				<Name value={countryName} />
 				<CountrySelector
 					countries={countries}
 					disabledCountryIds={guesses.map((g) => g.countryId)}
-					onSelectedCountryChanged={setSelctedCountry}
+					onSelectedCountryChanged={setSelectedCountry}
 					selectedCountry={selectedCountry}
 					disabled={gameState !== 'playing'}
 				/>
 				<ButtonContainer
-					primaryButtons={[
+					buttons={[
 						{
 							text: 'Submit',
 							onClick: handleSubmitAnswer,
-							disabled: gameState !== 'playing',
+							disabled:
+								gameState !== 'playing' || !selectedCountry,
+							type: 'primary',
 						},
-					]}
-					secondaryButtons={[
 						{
 							text: 'Get next chunk',
 							onClick: handleGetNextChunk,
 							disabled: flag.chunks.every((c) => c.revealed),
+							type: 'secondary',
 						},
 						{
 							text: 'Give up',
 							onClick: handleGiveUp,
 							disabled: gameState !== 'playing',
+							type: 'secondary',
 						},
 					]}
 				/>
-				{/* <InfoPanel /> */}
-				{gameState === 'correct' && <div>YOU GOT IT RIGHT!</div>}
 				<GuessList guesses={guesses} countryMap={countryMap.current} />
 			</div>
 		</div>

@@ -66,13 +66,13 @@ export const createGame = async (
 		gameId: game.ExternalRef,
 		flag: {
 			externalRef: country.Flag.ExternalRef,
-			fileType: mapFileTyle(country.Flag.FileType),
+			fileType: mapFileType(country.Flag.FileType),
 			chunks: country.Flag.Chunks.map((chunk) => {
 				const revealed = chunk.Id === startingFlagChunk.Id;
 				return {
 					revealed,
 					fileType: revealed
-						? mapFileTyle(chunk.FileType)
+						? mapFileType(chunk.FileType)
 						: undefined,
 					externalRef: revealed ? chunk.ExternalRef : undefined,
 					position: {
@@ -107,6 +107,8 @@ export const updateGame = async (
 	const correct =
 		!!request.countryId && request.countryId === game.Country.ExternalRef;
 
+	let countryName = correct ? game.Country.CommonName : undefined;
+
 	if (request.countryId) {
 		const latestRevealedChunk = game.RevealedChunks.sort(
 			(a, b) => a.OrderId - b.OrderId
@@ -133,7 +135,7 @@ export const updateGame = async (
 			revealed: revealed || correct,
 			fileType:
 				revealed || correct
-					? mapFileTyle(game.Country.Flag.FileType)
+					? mapFileType(game.Country.Flag.FileType)
 					: undefined,
 			externalRef: revealed || correct ? chunk.ExternalRef : undefined,
 			position: {
@@ -161,7 +163,7 @@ export const updateGame = async (
 			);
 			if (next) {
 				next.revealed = true;
-				next.fileType = mapFileTyle(chunk.FileType);
+				next.fileType = mapFileType(chunk.FileType);
 				next.externalRef = chunk.ExternalRef;
 			}
 		};
@@ -185,6 +187,7 @@ export const updateGame = async (
 
 			revealChunk(nextChunk);
 		} else if (request.giveUp) {
+			countryName = game.Country.CommonName;
 			remainingChunks.forEach((remainingChunk) => {
 				revealChunk(remainingChunk);
 			});
@@ -193,8 +196,9 @@ export const updateGame = async (
 	return {
 		correct,
 		guesses,
+		countryName,
 		flag: {
-			fileType: mapFileTyle(game.Country.Flag.FileType),
+			fileType: mapFileType(game.Country.Flag.FileType),
 			externalRef: game.Country.Flag.ExternalRef,
 			chunks: flagChunks,
 		},
@@ -212,6 +216,7 @@ const getGameByExternalRef = async (externalRef: string) =>
 			Country: {
 				select: {
 					ExternalRef: true,
+					CommonName: true,
 					Id: true,
 					Flag: {
 						select: {
@@ -300,7 +305,7 @@ const createAnswerEntity = async (
 		},
 	});
 
-const mapFileTyle = (fileType: FileType_DB): FileType_API => {
+const mapFileType = (fileType: FileType_DB): FileType_API => {
 	switch (fileType) {
 		case 'PNG':
 			return 'png';

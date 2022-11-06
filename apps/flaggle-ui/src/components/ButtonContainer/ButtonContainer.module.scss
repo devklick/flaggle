@@ -1,6 +1,17 @@
 .button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  //margin-top: 30px;
+  width: 100%;
+  gap: 10px;
+
+  &__primary-buttons,
+  &__secondary-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    margin-top: 30px;
+    width: 100%;
+    gap: 10px;
+  }
 }

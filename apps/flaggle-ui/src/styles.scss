@@ -1,10 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Quicksand&display=swap");
+
 body {
-    margin: 0;
+  margin: 0;
 }
 
 @import "./app/app.module.scss";
 @import "./components/FlagGrid/FlagGrid.module.scss";
 @import "./components/CountrySelector/CountrySelector.module.scss";
 @import "./components/Header/Header.module.scss";
-@import "./components//ButtonContainer/ButtonContainer.module.scss";
+@import "./components/ButtonContainer/ButtonContainer.module.scss";
+@import "./components/Button/Button.module.scss";
+@import "./components/FlagChunk/FlagChunk.module.scss";
+@import "./components/GuessList/GuessList.module.scss";
+@import "./components/CountryName/CountryName.module.scss";

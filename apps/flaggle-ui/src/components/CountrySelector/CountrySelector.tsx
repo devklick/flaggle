@@ -18,9 +18,9 @@ const CountrySelector: React.FC<CountrySelectorProps> = (props) => {
 	const collator = useRef(new Intl.Collator());
 
 	return (
-		<div className="country-selctor">
+		<div className="country-selector">
 			<Select
-				classNamePrefix="country-selctor__list"
+				classNamePrefix="country-selector__list"
 				isDisabled={props.disabled}
 				value={
 					props.selectedCountry && {
