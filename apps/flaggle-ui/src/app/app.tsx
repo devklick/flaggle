@@ -3,6 +3,7 @@ import {
 	Country,
 	CreateGameResponse,
 	Flag,
+	GameStatus,
 	Guess,
 } from '@flaggle/flaggle-api-schemas';
 import flaggleApiService from '@flaggle/flaggle-api-service';
@@ -11,11 +12,9 @@ import ButtonContainer from '../components/ButtonContainer';
 import CountrySelector from '../components/CountrySelector';
 import FlagGrid from '../components/FlagGrid';
 import GuessList from '../components/GuessList';
-import InfoPanel from '../components/InfoPanel';
 import Header from '../components/Header';
 import Name from '../components/CountryName';
 
-type GameState = 'loading' | 'playing' | 'correct' | 'no-more-guesses';
 type GameType = Pick<CreateGameResponse, 'gameId' | 'playerId'>;
 const defaultFlagValue: Flag = {
 	chunks: [],
@@ -41,7 +40,7 @@ export const App = () => {
 	/**
 	 * The current state of the game.
 	 */
-	const [gameState, setGameState] = useState<GameState>('loading');
+	const [gameState, setGameState] = useState<GameStatus>('in-progress');
 
 	/**
 	 * The constant game data - doesnt change after initially loaded.
@@ -94,17 +93,17 @@ export const App = () => {
 	}, []);
 
 	// Update the game status once everything is loaded.
-	const loaded = countries.length > 0 && game !== null;
-	useEffect(() => {
-		loaded && setGameState('playing');
-	}, [loaded]);
+	// const loaded = countries.length > 0 && game !== null;
+	// useEffect(() => {
+	// 	loaded && setGameState('');
+	// }, [loaded]);
 
 	// Update the game status once all guesses have been used and were not correct
 	// prettier-ignore
-	const usedAllGuesses = guesses.length === flag.chunks.length && gameState !== 'correct';
-	useEffect(() => {
-		usedAllGuesses && setGameState('no-more-guesses');
-	}, [usedAllGuesses]);
+	// const usedAllGuesses = guesses.length === flag.chunks.length && gameState !== 'correct';
+	// useEffect(() => {
+	// 	usedAllGuesses && setGameState('no-more-guesses');
+	// }, [usedAllGuesses]);
 
 	const handleSubmitAnswer = async () => {
 		if (!selectedCountry) return;
@@ -117,7 +116,7 @@ export const App = () => {
 
 	const handleGiveUp = async () => {
 		await apiCall(undefined, false, true);
-		setGameState('no-more-guesses');
+		// setGameState('no-more-guesses');
 	};
 
 	const apiCall = async (
@@ -135,7 +134,7 @@ export const App = () => {
 
 		setFlag(result.flag);
 		setGuesses(result.guesses);
-		result.correct && setGameState('correct');
+		setGameState(result.status);
 		setCountryName(result.countryName ?? null);
 		setSelectedCountry(null);
 	};
@@ -151,7 +150,7 @@ export const App = () => {
 					disabledCountryIds={guesses.map((g) => g.countryId)}
 					onSelectedCountryChanged={setSelectedCountry}
 					selectedCountry={selectedCountry}
-					disabled={gameState !== 'playing'}
+					disabled={gameState !== 'in-progress'}
 				/>
 				<ButtonContainer
 					buttons={[
@@ -159,7 +158,7 @@ export const App = () => {
 							text: 'Submit',
 							onClick: handleSubmitAnswer,
 							disabled:
-								gameState !== 'playing' || !selectedCountry,
+								gameState !== 'in-progress' || !selectedCountry,
 							type: 'primary',
 						},
 						{
@@ -171,7 +170,7 @@ export const App = () => {
 						{
 							text: 'Give up',
 							onClick: handleGiveUp,
-							disabled: gameState !== 'playing',
+							disabled: gameState !== 'in-progress',
 							type: 'secondary',
 						},
 					]}

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const fileTypeSchema = z.enum(['none', 'png']);
+const gameStatusSchema = z.enum(['in-progress', 'lost', 'won']);
 
 // TODO: Create different schemas and types for revealed vs unrevealed flags
 
@@ -102,10 +103,9 @@ const guessesSchema = z.array(guessSchema);
 
 export const updateGameResponseSchema = z.object({
 	/**
-	 * Whether or not the country in the corresponding request
-	 * was the correct guess.
+	 * The new status of the game following the requested update
 	 */
-	correct: z.boolean(),
+	status: gameStatusSchema,
 	/**
 	 * The cumulative guesses during the game.
 	 */
@@ -122,3 +122,4 @@ export type Flag = z.infer<typeof flagSchema>;
 export type FlagChunk = z.infer<typeof flagChunkSchema>;
 export type FileType = z.infer<typeof fileTypeSchema>;
 export type Guess = z.infer<typeof guessSchema>;
+export type GameStatus = z.infer<typeof gameStatusSchema>;

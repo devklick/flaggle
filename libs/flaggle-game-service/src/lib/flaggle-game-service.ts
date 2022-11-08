@@ -7,8 +7,14 @@ import {
 	UpdateGameResponse,
 } from '@flaggle/flaggle-api-schemas';
 import { client } from '@flaggle/flaggle-db';
-import { FileType as FileType_DB } from '@prisma/client';
-import { FileType as FileType_API } from '@flaggle/flaggle-api-schemas';
+import {
+	FileType as FileType_DB,
+	GameStatus as GameStatus_DB,
+} from '@prisma/client';
+import {
+	FileType as FileType_API,
+	GameStatus as GameStatus_API,
+} from '@flaggle/flaggle-api-schemas';
 import { randomUUID } from 'crypto';
 
 export const createGame = async (
@@ -133,10 +139,14 @@ export const updateGame = async (
 	const gameOver = !remainingChunks.length;
 
 	// Record the answer if one was provided
+	let status: GameStatus_DB = gameOver ? 'Lost' : 'InProgress';
+
 	const correct =
 		!gameOver &&
 		!!request.countryId &&
 		request.countryId === game.Country.ExternalRef;
+
+	if (correct) status = 'Won';
 
 	let countryName = gameOver || correct ? game.Country.CommonName : undefined;
 
@@ -191,6 +201,7 @@ export const updateGame = async (
 		};
 
 		if (request.giveUp) {
+			status = 'Lost';
 			countryName = game.Country.CommonName;
 			remainingChunks.forEach((remainingChunk) => {
 				revealChunk(remainingChunk);
@@ -200,11 +211,20 @@ export const updateGame = async (
 			revealChunk(nextChunk);
 			if (flagChunks.every((c) => c.revealed)) {
 				countryName = game.Country.CommonName;
+				status = 'Lost';
 			}
 		}
 	}
+
+	if (status !== 'InProgress') {
+		await client.game.update({
+			data: { Status: status },
+			where: { Id: game.Id },
+		});
+	}
+
 	return {
-		correct,
+		status: mapGameStatus(status),
 		guesses,
 		countryName,
 		flag: {
@@ -321,6 +341,19 @@ const mapFileType = (fileType: FileType_DB): FileType_API => {
 			return 'png';
 		default:
 			throw new Error('Unsupported file type');
+	}
+};
+
+const mapGameStatus = (status: GameStatus_DB): GameStatus_API => {
+	switch (status) {
+		case 'InProgress':
+			return 'in-progress';
+		case 'Lost':
+			return 'lost';
+		case 'Won':
+			return 'won';
+		default:
+			throw new Error('Unsupported game status');
 	}
 };
 
