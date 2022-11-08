@@ -1,4 +1,4 @@
-import { boolean, z } from 'zod';
+import { z } from 'zod';
 
 const fileTypeSchema = z.enum(['none', 'png']);
 

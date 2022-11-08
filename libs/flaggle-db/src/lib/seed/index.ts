@@ -13,7 +13,7 @@ const seed = async () => {
 		const countryEntity = await client.country.upsert({
 			create: {
 				CommonName: country.name.common,
-				OffcialName: country.name.official,
+				OfficialName: country.name.official,
 				Flag: {
 					create: {
 						ExternalDownloadUrl: country.flags.png,
@@ -22,7 +22,7 @@ const seed = async () => {
 				},
 			},
 			update: {
-				OffcialName: country.name.official,
+				OfficialName: country.name.official,
 			},
 			where: {
 				CommonName: country.name.common,

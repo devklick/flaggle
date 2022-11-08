@@ -37,6 +37,7 @@ export const createGame = async (
 		data: {
 			CountryId: country.Id,
 			PlayerId: player.Id,
+			Status: 'InProgress',
 		},
 		select: {
 			ExternalRef: true,
@@ -103,13 +104,43 @@ export const updateGame = async (
 	// Convert the answers into objects expected by the API response
 	const guesses = mapAnswers(...game.Answers);
 
+	// Convert he chunks to objects expected by the API response
+	const flagChunks = game.Country.Flag.Chunks.map((chunk): FlagChunk => {
+		const revealed = game.RevealedChunks.some(
+			(c) => c.FlagChunk.ExternalRef === chunk.ExternalRef
+		);
+		return {
+			revealed: revealed,
+			fileType: revealed
+				? mapFileType(game.Country.Flag.FileType)
+				: undefined,
+			externalRef: revealed ? chunk.ExternalRef : undefined,
+			position: {
+				x: chunk.X,
+				y: chunk.Y,
+			},
+		};
+	});
+
+	const remainingChunks = game.Country.Flag.Chunks.filter(
+		(chunk) =>
+			!game.RevealedChunks.some(
+				(r) => r.FlagChunk.ExternalRef === chunk.ExternalRef
+			)
+	);
+
+	// If all chunks have been reviewed, the player cannot submit any further answers
+	const gameOver = !remainingChunks.length;
+
 	// Record the answer if one was provided
 	const correct =
-		!!request.countryId && request.countryId === game.Country.ExternalRef;
+		!gameOver &&
+		!!request.countryId &&
+		request.countryId === game.Country.ExternalRef;
 
-	let countryName = correct ? game.Country.CommonName : undefined;
+	let countryName = gameOver || correct ? game.Country.CommonName : undefined;
 
-	if (request.countryId) {
+	if (!gameOver && request.countryId) {
 		const latestRevealedChunk = game.RevealedChunks.sort(
 			(a, b) => a.OrderId - b.OrderId
 		)[game.RevealedChunks.length - 1];
@@ -126,37 +157,8 @@ export const updateGame = async (
 		mapAnswers(latestAnswer).forEach((guess) => guesses.push(guess));
 	}
 
-	// Convert he chunks to objects expected by the API response
-	const flagChunks = game.Country.Flag.Chunks.map((chunk): FlagChunk => {
-		const revealed = game.RevealedChunks.some(
-			(c) => c.FlagChunk.ExternalRef === chunk.ExternalRef
-		);
-		return {
-			revealed: revealed || correct,
-			fileType:
-				revealed || correct
-					? mapFileType(game.Country.Flag.FileType)
-					: undefined,
-			externalRef: revealed || correct ? chunk.ExternalRef : undefined,
-			position: {
-				x: chunk.X,
-				y: chunk.Y,
-			},
-		};
-	});
-
-	const gameOver =
-		guesses.length === game.Country.Flag.Chunks.length && !correct;
-
 	// If the answer was incorrect, or no answer was given, we need to fetch another chunk to serve as the next clue
 	if (!gameOver && !correct) {
-		const remainingChunks = game.Country.Flag.Chunks.filter(
-			(chunk) =>
-				!game.RevealedChunks.some(
-					(r) => r.FlagChunk.ExternalRef === chunk.ExternalRef
-				)
-		);
-
 		const revealChunk = (chunk: typeof remainingChunks[0]) => {
 			const next = flagChunks.find(
 				(c) => c.position.x === chunk.X && c.position.y == chunk.Y
@@ -167,7 +169,8 @@ export const updateGame = async (
 				next.externalRef = chunk.ExternalRef;
 			}
 		};
-		if (request.skipAndGetNextChunk) {
+
+		const getNextChunk = async () => {
 			const nextChunk = getRandomItem(remainingChunks);
 			await client.revealedChunk.create({
 				data: {
@@ -184,13 +187,20 @@ export const updateGame = async (
 					},
 				},
 			});
+			return nextChunk;
+		};
 
-			revealChunk(nextChunk);
-		} else if (request.giveUp) {
+		if (request.giveUp) {
 			countryName = game.Country.CommonName;
 			remainingChunks.forEach((remainingChunk) => {
 				revealChunk(remainingChunk);
 			});
+		} else if (!gameOver && request.skipAndGetNextChunk) {
+			const nextChunk = await getNextChunk();
+			revealChunk(nextChunk);
+			if (flagChunks.every((c) => c.revealed)) {
+				countryName = game.Country.CommonName;
+			}
 		}
 	}
 	return {

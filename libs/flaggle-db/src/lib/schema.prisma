@@ -7,14 +7,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum GameStatus {
+  InProgress @map("in_progress")
+  Lost       @map("lost")
+  Won        @map("won")
+}
+
 model Country {
-  Id          Int      @id @default(autoincrement()) @map("id")
-  ExternalRef String   @unique() @default(uuid()) @map("external_ref") @db.Uuid()
-  CreatedOn   DateTime @default(now()) @map("created_on")
-  UpdatedOn   DateTime @updatedAt @map("updated_on")
-  CommonName  String   @unique() @map("common_name") @db.VarChar(60)
-  OffcialName String   @map("offcial_name") @db.VarChar(120)
-  FlagId      Int      @unique @map("flag_id")
+  Id           Int      @id @default(autoincrement()) @map("id")
+  ExternalRef  String   @unique() @default(uuid()) @map("external_ref") @db.Uuid()
+  CreatedOn    DateTime @default(now()) @map("created_on")
+  UpdatedOn    DateTime @updatedAt @map("updated_on")
+  CommonName   String   @unique() @map("common_name") @db.VarChar(60)
+  OfficialName String   @map("offcial_name") @db.VarChar(120)
+  FlagId       Int      @unique @map("flag_id")
 
   Flag    Flag     @relation(fields: [FlagId], references: [Id])
   Games   Game[]
@@ -71,6 +77,7 @@ model Game {
   UpdatedOn      DateTime        @updatedAt @map("updated_on")
   CountryId      Int             @map("country_id")
   PlayerId       Int             @map("player_id")
+  Status         GameStatus      @map("status")
   Player         Player          @relation(fields: [PlayerId], references: [Id])
   Country        Country         @relation(fields: [CountryId], references: [Id])
   RevealedChunks RevealedChunk[]
