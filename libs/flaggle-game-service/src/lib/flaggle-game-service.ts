@@ -167,52 +167,57 @@ export const updateGame = async (
 		mapAnswers(latestAnswer).forEach((guess) => guesses.push(guess));
 	}
 
-	// If the answer was incorrect, or no answer was given, we need to fetch another chunk to serve as the next clue
-	if (!gameOver && !correct) {
-		const revealChunk = (chunk: typeof remainingChunks[0]) => {
-			const next = flagChunks.find(
-				(c) => c.position.x === chunk.X && c.position.y == chunk.Y
-			);
-			if (next) {
-				next.revealed = true;
-				next.fileType = mapFileType(chunk.FileType);
-				next.externalRef = chunk.ExternalRef;
-			}
-		};
+	const revealChunk = (chunk: typeof remainingChunks[0]) => {
+		const next = flagChunks.find(
+			(c) => c.position.x === chunk.X && c.position.y == chunk.Y
+		);
+		if (next) {
+			next.revealed = true;
+			next.fileType = mapFileType(chunk.FileType);
+			next.externalRef = chunk.ExternalRef;
+		}
+	};
 
-		const getNextChunk = async () => {
-			const nextChunk = getRandomItem(remainingChunks);
-			await client.revealedChunk.create({
-				data: {
-					OrderId: flagChunks.length + 1,
-					FlagChunk: {
-						connect: {
-							ExternalRef: nextChunk.ExternalRef,
-						},
-					},
-					Game: {
-						connect: {
-							Id: game.Id,
-						},
+	const getNextChunk = async () => {
+		const nextChunk = getRandomItem(remainingChunks);
+		await client.revealedChunk.create({
+			data: {
+				OrderId: flagChunks.length + 1,
+				FlagChunk: {
+					connect: {
+						ExternalRef: nextChunk.ExternalRef,
 					},
 				},
-			});
-			return nextChunk;
-		};
+				Game: {
+					connect: {
+						Id: game.Id,
+					},
+				},
+			},
+		});
+		return nextChunk;
+	};
 
-		if (request.giveUp) {
-			status = 'Lost';
+	// If the player has given up or has guessed the correct country,
+	// we want to reval all remaining flag chunks
+	if (request.giveUp || correct) {
+		status = correct ? 'Won' : 'Lost';
+		countryName = game.Country.CommonName;
+		remainingChunks.forEach((remainingChunk) => {
+			revealChunk(remainingChunk);
+		});
+	}
+	// otherwise, if the game is still in play, reveal the next flag chunk
+	else if (!gameOver) {
+		const nextChunk = await getNextChunk();
+		revealChunk(nextChunk);
+
+		// If the latest revealed chunk was the last remaining chunk,
+		// the entire flag has been revealed, and the player no longer
+		// gets a chance to submit any further answers - they have lost.
+		if (flagChunks.every((c) => c.revealed)) {
 			countryName = game.Country.CommonName;
-			remainingChunks.forEach((remainingChunk) => {
-				revealChunk(remainingChunk);
-			});
-		} else if (!gameOver) {
-			const nextChunk = await getNextChunk();
-			revealChunk(nextChunk);
-			if (flagChunks.every((c) => c.revealed)) {
-				countryName = game.Country.CommonName;
-				status = 'Lost';
-			}
+			status = 'Lost';
 		}
 	}
 
