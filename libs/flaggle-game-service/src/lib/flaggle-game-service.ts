@@ -206,7 +206,7 @@ export const updateGame = async (
 			remainingChunks.forEach((remainingChunk) => {
 				revealChunk(remainingChunk);
 			});
-		} else if (!gameOver && request.skipAndGetNextChunk) {
+		} else if (!gameOver) {
 			const nextChunk = await getNextChunk();
 			revealChunk(nextChunk);
 			if (flagChunks.every((c) => c.revealed)) {
